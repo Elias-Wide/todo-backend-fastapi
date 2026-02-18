@@ -1,0 +1,19 @@
+# Database Settings
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_NAME=tododb
+DB_PASSWORD=postgres
+
+# Telegram Bot Settings
+TG_BOT_TOKEN=1435353545:YOUR_TG_BOT_TOKEN-ooEl3ewVMZ7pWxuCU
+TG_ADMIN_ID=123435
+TG_WEBHOOK_HOST=https://your_external_forwarding_address.ngrok-free.app
+TG_WEBHOOK_MODE=True
+
+# Application Admin & Security
+APP_ADMIN_EMAIL=admin_email_for_login
+APP_ADMIN_PASSWORD=admin_panel_password
+APP_LOGGING_MODE=on  
+APP_SECRET_KEY=secret_key_for_data_encoding_64_chars_to_be_converted_to_bytes
+APP_ADMIN_SC=admin_panel_secret_key
