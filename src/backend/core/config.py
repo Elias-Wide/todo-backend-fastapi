@@ -1,16 +1,21 @@
-from pathlib import Path
 from typing import Optional
 
+from config_base import BASE_DIR, ConfigBase, DatabaseConfig
 from cryptography.fernet import Fernet
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from src.core.config_base import ConfigBase, DatabaseConfig
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-STATIC_DIR = BASE_DIR / 'static'
+from backend.core.constants import (
+    DEFAULT_ACCESS_TOKEN_EXPIRES_MIN,
+    DEFAULT_JWT_ALGORITHM,
+    DEFAULT_REFRESH_TOKEN_EXPIRES_MIN,
+)
+
+BACKEND_DIR = BASE_DIR / 'src' / 'backend'
+STATIC_DIR = BASE_DIR / 'src' / 'static'
 
 
-class AuthConfig(ConfigBase):
+class AppAuthConfig(ConfigBase):
     """
     Authentication and security settings for the application.
 
@@ -19,6 +24,7 @@ class AuthConfig(ConfigBase):
     """
 
     model_config = SettingsConfigDict(env_prefix='app_')
+    name: str = 'ToDo'
     logging_mode: str = 'on'
     admin_email: str
     admin_password: SecretStr
@@ -40,6 +46,28 @@ class AuthConfig(ConfigBase):
         self.secret_key = Fernet.generate_key()
 
 
+class UserAuthConfig(ConfigBase):
+    """
+    User authentication settings, including JWT configuration.
+    """
+
+    jwt_algorithm: str = Field(
+        default=DEFAULT_JWT_ALGORITHM, alias='AUTH_JWT_ALGORITHM'
+    )
+    jwt_secret_key: str = Field(
+        default='change-me', alias='AUTH_JWT_SECRET_KEY'
+    )
+    access_token_expires_minutes: int = Field(
+        default=DEFAULT_ACCESS_TOKEN_EXPIRES_MIN,
+        alias='AUTH_ACCESS_TOKEN_EXPIRES_MINUTES',
+    )
+    refresh_token_expires_minutes: int = Field(
+        default=DEFAULT_REFRESH_TOKEN_EXPIRES_MIN,
+        alias='AUTH_REFRESH_TOKEN_EXPIRES_MINUTES',
+    )
+    model_config = SettingsConfigDict(env_prefix='auth_')
+
+
 class Settings(BaseSettings):
     """
     Global application settings container.
@@ -47,8 +75,10 @@ class Settings(BaseSettings):
     Integrates database connection and authentication configurations.
     """
 
+    app_name: str = 'Todo'
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
-    auth: AuthConfig = Field(default_factory=AuthConfig)
+    app: AppAuthConfig = Field(default_factory=AppAuthConfig)
+    auth: UserAuthConfig = Field(default_factory=UserAuthConfig)
 
     @classmethod
     def load(cls) -> 'Settings':
@@ -56,4 +86,4 @@ class Settings(BaseSettings):
         return cls()
 
 
-settings = Settings.load()
+settings: Settings = Settings.load()

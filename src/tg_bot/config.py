@@ -1,6 +1,6 @@
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from core.config_base import ConfigBase, DatabaseConfig
+from config_base import ConfigBase, DatabaseConfig
 
 
 class TelegramConfig(ConfigBase):

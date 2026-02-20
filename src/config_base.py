@@ -1,12 +1,16 @@
-from dataclasses import Field
+from pydantic import Field
+from pathlib import Path
 from typing import Optional
 from pydantic import SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_PATH = BASE_DIR / "src" / "infra" / "main.env"
+
 
 class ConfigBase(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="main.env", env_file_encoding="utf-8", extra="ignore"
+        env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
 
 

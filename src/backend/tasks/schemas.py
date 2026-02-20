@@ -1,6 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from backend.tasks.constants import (
+    DESCRIPTION_MAX_LENGTH,
+    TASK_MAX_LENGTH,
+    TASK_MIN_LENGTH,
+)
 
 
 class STaskAdd(BaseModel):
@@ -11,12 +17,16 @@ class STaskAdd(BaseModel):
     within the system.
     """
 
-    title: str = Field(..., description='The brief title of the task')
-    category: str = Field(
-        ..., description='The logical grouping or tag for the task'
+    title: str = Field(
+        ..., min_length=TASK_MIN_LENGTH, max_length=TASK_MAX_LENGTH
     )
-    description: Optional[str] = Field(
-        None, description="Detailed explanation of the task's scope"
+    description: Optional[str] = Field(None, max_length=DESCRIPTION_MAX_LENGTH)
+    is_daily: bool = Field(
+        False, description='Indicates if the task should repeat daily'
+    )
+    model_config = ConfigDict(from_attributes=True)
+    scheduled_time: Optional[str] = Field(
+        None, description='Specific time of day the task, in HH:MM format'
     )
 
 
@@ -31,4 +41,8 @@ class STask(STaskAdd):
 
     id: int = Field(
         ..., description='The unique database identifier for the task'
+    )
+    model_config = ConfigDict(from_attributes=True)
+    is_daily: bool = Field(
+        ..., description='Indicates if the task should repeat daily'
     )

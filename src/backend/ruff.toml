@@ -40,3 +40,14 @@ indent-style = "space"
 # "RET" - flake8-return (Return statement consistency)
 
 extend-select = ["I", "F", "B", "E", "N", "W", "C90", "A", "RET"]
+
+[lint.flake8-bugbear]
+# Allow calls to these functions in default values ​​(FastAPI specific)
+extend-immutable-calls = [
+    "fastapi.Depends", 
+    "fastapi.params.Depends", 
+    "fastapi.Query", 
+    "fastapi.params.Query", 
+    "fastapi.Path", 
+    "fastapi.params.Path"
+]
