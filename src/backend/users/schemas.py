@@ -22,9 +22,6 @@ class SUser(BaseModel):
     tg_id: int | None = Field(
         default=None, description='Telegram ID of the user'
     )
-    tg_username: str | None = Field(
-        default=None, description='Telegram username of the user'
-    )
     model_config = ConfigDict(from_attributes=True)
 
 

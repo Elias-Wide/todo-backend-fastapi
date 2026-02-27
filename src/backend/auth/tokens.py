@@ -19,12 +19,15 @@ class TokenHelper:
         """Generate a long-lived random refresh token string."""
         return secrets.token_urlsafe(48)
 
-    def decode_token(self, token: str, expected_type: str) -> JWTPayload:
+    def decode_token(
+        self, token: str, expected_type: str, iss: str = settings.app.name
+    ) -> JWTPayload:
         """Decode JWT and validate structure using JWTPayload schema."""
         raw_payload = jwt.decode(
             token,
             settings.auth.jwt_secret_key,
             algorithms=[settings.auth.jwt_algorithm],
+            issuer=iss,
         )
         payload = JWTPayload(**raw_payload)
 
@@ -34,7 +37,11 @@ class TokenHelper:
         return payload
 
     def _create_token(
-        self, user_id: int, token_type: str, expires_minutes: int
+        self,
+        user_id: int,
+        token_type: str,
+        expires_minutes: int,
+        iss: str = settings.app.name,
     ) -> str:
         """Assemble JWT with specific type, sub, and expiration."""
         now = datetime.now(timezone.utc)
@@ -43,7 +50,7 @@ class TokenHelper:
             'type': token_type,
             'iat': int(now.timestamp()),
             'exp': int((now + timedelta(minutes=expires_minutes)).timestamp()),
-            'iss': settings.app.name,
+            'iss': iss,
         }
         return jwt.encode(
             payload,

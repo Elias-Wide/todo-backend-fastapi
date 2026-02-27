@@ -1,128 +1,105 @@
-from typing import List, TypeVar
+from typing import Any, Generic, List, Optional, Type, TypeVar
 
-from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.base import AbstractRepository
-from backend.db.database import Model, new_session
+from backend.db.database import Model
 from core.logging import get_logger
-from core.messages import DbErrorMessages, DbLogMessages
 
 logger = get_logger(__name__)
 ModelType = TypeVar('ModelType', bound=Model)
 
 
-class SQLAlchemyRepository(AbstractRepository):
-    """Base repository class for common database operations."""
+# Type hints for better IDE support
+ModelType = TypeVar('ModelType')
+SchemaType = TypeVar('SchemaType', bound=BaseModel)
 
-    model = None
 
-    @classmethod
-    async def add_one(cls, model_data: BaseModel) -> int:
+class SQLAlchemyRepository(Generic[ModelType, SchemaType]):
+    """
+    Base repository class for common database operations.
+    Now instance-based to work with DBManager's lifecycle.
+    """
+
+    model: Type[ModelType] = None
+    schema: Type[SchemaType] = None
+
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def add_one(self, model_data: SchemaType) -> int:
         """
-        Create a new record in the database.
-
-        Raises:
-            ValueError: If unique constraints are violated.
-            RuntimeError: On database or internal system failures.
+        Create a new record.
         """
-        async with new_session() as session:
-            try:
-                model_dict = model_data.model_dump()
-                model_obj = cls.model(**model_dict)
-                session.add(model_obj)
-                await session.flush()
-                await session.commit()
-                logger.info(DbLogMessages.COMMIT_SUCCESS, model_obj.id)
-                return model_obj.id
-            except IntegrityError as e:
-                await session.rollback()
-                logger.warning(DbLogMessages.INTEGRITY_ERROR, model_data, e)
-                raise ValueError(
-                    DbErrorMessages.ALREADY_EXISTS.format(
-                        model=cls.model, data=model_data
-                    )
-                ) from e
-            except Exception as e:
-                await session.rollback()
-                logger.exception(DbLogMessages.UNEXPECTED_ERROR, 'add', e)
-                raise RuntimeError(DbErrorMessages.INTERNAL_ERROR) from e
+        try:
+            model_dict = model_data.model_dump()
+            model_obj = self.model(**model_dict)
+            self.session.add(model_obj)
 
-    @classmethod
-    async def find_all(cls) -> List[ModelType]:
-        """
-        Retrieve all records for the current model.
+            await self.session.flush()
+            return model_obj.id
 
-        Returns:
-            List of model instances or an empty list.
-        """
-        async with new_session() as session:
-            try:
-                query = select(cls.model)
-                result = await session.execute(query)
-                return result.scalars().all()
-            except SQLAlchemyError as e:
-                logger.error(DbLogMessages.FETCH_ERROR, str(e))
-                raise RuntimeError(DbErrorMessages.INTERNAL_ERROR) from e
+        except IntegrityError as e:
+            raise ValueError(f'Record already exists: {e}') from e
+        except Exception as e:
+            raise RuntimeError('Internal database error') from e
 
-    @classmethod
-    async def get_one(cls, record_id: int) -> ModelType:
-        """
-        Retrieve a single record by its unique ID.
+    async def find_all(self) -> List[SchemaType]:
+        """Retrieve all records and auto-validate into Pydantic schemas."""
+        try:
+            query = select(self.model)
+            result = await self.session.execute(query)
+            model_objs = result.scalars().all()
 
-        Raises:
-            ValueError: If record is not found.
-            RuntimeError: On database execution errors.
-        """
-        async with new_session() as session:
-            try:
-                query = select(cls.model).where(cls.model.id == record_id)
-                result = await session.execute(query)
-                model_obj = result.scalar_one_or_none()
-                if model_obj is None:
-                    logger.warning(
-                        DbLogMessages.NOT_FOUND, cls.model, record_id
-                    )
-                    raise ValueError(
-                        DbErrorMessages.NOT_FOUND.format(
-                            model=cls.model, id=record_id
-                        )
-                    )
-                return model_obj
-            except SQLAlchemyError as e:
-                logger.error(DbLogMessages.FETCH_ERROR, str(e))
-                raise RuntimeError(DbErrorMessages.INTERNAL_ERROR) from e
+            if self.schema:
+                return [self.schema.model_validate(obj) for obj in model_objs]
+            return model_objs
+        except SQLAlchemyError as e:
+            raise RuntimeError('Failed to fetch records') from e
 
-    @classmethod
-    async def update(cls, db_obj: ModelType, obj_in: BaseModel) -> ModelType:
-        """
-        Update an existing database object with new data.
+    async def get_one_by_field(
+        self, attr_name: str, attr_value: Any
+    ) -> Optional[SchemaType]:
+        """Generic filter for a single record."""
+        query = select(self.model).where(
+            getattr(self.model, attr_name) == attr_value
+        )
+        result = await self.session.execute(query)
+        obj = result.scalars().first()
 
-        Returns:
-            The updated model instance.
-        """
-        async with new_session() as session:
-            obj_data = jsonable_encoder(db_obj)
-            update_data = obj_in.model_dump(exclude_unset=True)
-            for field in obj_data:
-                if field in update_data:
-                    setattr(db_obj, field, update_data[field])
-            session.add(db_obj)
-            await session.commit()
-            await session.refresh(db_obj)
-            return db_obj
+        if obj and self.schema:
+            return self.schema.model_validate(obj)
+        return obj
 
-    @classmethod
-    async def delete(cls, db_obj: ModelType) -> ModelType:
-        """
-        Remove a record from the database.
+    async def update(self, db_obj: ModelType, obj_in: SchemaType) -> ModelType:
+        """Update an object in the current session context."""
+        update_data = obj_in.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            if hasattr(db_obj, field):
+                setattr(db_obj, field, value)
 
-        Returns:
-            The deleted model instance.
-        """
-        async with new_session() as session:
-            await session.delete(db_obj)
-            await session.commit()
-            return db_obj
+        self.session.add(db_obj)
+        await self.session.flush()
+        return db_obj
+
+    async def delete(self, db_obj: ModelType) -> None:
+        """Mark an object for deletion."""
+        try:
+            await self.session.delete(db_obj)
+            await self.session.flush()
+        except SQLAlchemyError as e:
+            raise RuntimeError('Failed to delete record') from e
+
+    async def add_one_from_dict(self, data_dict: dict) -> int:
+        """Create a new record from a dictionary."""
+        try:
+            model_obj = self.model(**data_dict)
+            self.session.add(model_obj)
+            await self.session.flush()
+            return model_obj.id
+        except IntegrityError as e:
+            raise ValueError(f'Record already exists: {e}') from e
+        except Exception as e:
+            raise RuntimeError('Internal database error') from e

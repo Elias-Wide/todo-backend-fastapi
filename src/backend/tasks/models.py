@@ -1,10 +1,11 @@
 from datetime import datetime, time
 from typing import Optional
 
-from sqlalchemy import Time, func, text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, Time, func, text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.db.database import Model
+from backend.users.models import UsersOrm
 
 
 class TasksOrm(Model):
@@ -39,6 +40,13 @@ class TasksOrm(Model):
         nullable=True,
         comment='The final deadline timestamp for task completion',
     )
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+        index=True,
+        comment='Foreign key linking the task to its owning user',
+    )
+    user: Mapped[UsersOrm] = relationship(back_populates='tasks')
 
     def __repr__(self) -> str:
         """
