@@ -61,3 +61,18 @@ class TasksRepository(SQLAlchemyRepository):
                 f'Task with ID {task_id} not found for user {user_id}'
             )
         return task_obj
+
+    async def get_tasks_by_user(self, user_id: int) -> list[STask]:
+        """
+        Retrieves all tasks associated with a specific user.
+
+        Args:
+            user_id: The ID of the user whose tasks to retrieve.
+
+        Returns:
+            A list of STask objects representing the user's tasks.
+        """
+        query = select(self.model).where(self.model.user_id == user_id)
+        result = await self.session.execute(query)
+        task_objs = result.scalars().all()
+        return [self.schema.model_validate(obj) for obj in task_objs]

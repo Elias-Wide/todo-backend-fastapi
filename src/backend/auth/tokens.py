@@ -1,14 +1,19 @@
+import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from jwt import jwt
-from jwt.exceptions import InvalidKeyTypeError
+import jwt  # Используем стандартный модуль
+from jwt.exceptions import InvalidTokenError
 
-from backend.auth.schemas import JWTPayload
+from backend.auth.schemas import SJWTPayload
 from backend.core.config import settings
 
 
 class TokenHelper:
+    def __init__(self):
+        self.algorithm = settings.auth.jwt_algorithm
+        self.secret = settings.auth.jwt_secret_key
+
     def create_access_token(self, user_id: int) -> str:
         """Create JWT access token with expiration from settings."""
         return self._create_token(
@@ -19,20 +24,27 @@ class TokenHelper:
         """Generate a long-lived random refresh token string."""
         return secrets.token_urlsafe(48)
 
+    def hash_token(self, token: str) -> str:
+        """Hash a token string for secure storage and comparison."""
+        return hashlib.sha256(token.encode('utf-8')).hexdigest()
+
     def decode_token(
-        self, token: str, expected_type: str, iss: str = settings.app.name
-    ) -> JWTPayload:
+        self,
+        encoded_token: str,
+        expected_type: str,
+        iss: str = settings.app.name,
+    ) -> SJWTPayload:
         """Decode JWT and validate structure using JWTPayload schema."""
         raw_payload = jwt.decode(
-            token,
-            settings.auth.jwt_secret_key,
-            algorithms=[settings.auth.jwt_algorithm],
+            encoded_token,
+            self.secret,
+            algorithms=[self.algorithm],
             issuer=iss,
         )
-        payload = JWTPayload(**raw_payload)
+        payload = SJWTPayload(**raw_payload)
 
         if payload.type != expected_type:
-            raise InvalidKeyTypeError('Invalid token type')
+            raise InvalidTokenError('Invalid token type')
 
         return payload
 
@@ -52,11 +64,7 @@ class TokenHelper:
             'exp': int((now + timedelta(minutes=expires_minutes)).timestamp()),
             'iss': iss,
         }
-        return jwt.encode(
-            payload,
-            settings.auth.jwt_secret_key,
-            algorithm=settings.auth.jwt_algorithm,
-        )
+        return jwt.encode(payload, self.secret, algorithm=self.algorithm)
 
 
 tokens = TokenHelper()

@@ -1,3 +1,5 @@
+from backend.auth.security import security
+from backend.core.exceptions import UserAlreadyExistsError
 from backend.db.db_manager import DBManager
 from backend.users.models import UsersOrm
 from backend.users.schemas import SUserRegister
@@ -21,20 +23,26 @@ class UsersService:
         Returns:
             The ID of the newly created user record.
         """
-        user_id = await self.db.users.add_one(user_data)
-        await self.db.commit()
-        return user_id
+        existing = await self.db.users.get_user('username', user_data.username)
+        if existing:
+            raise UserAlreadyExistsError
+        user = await self.db.users.create_user(
+            username=user_data.username,
+            password_hash=security.hash_password(user_data.password),
+        )
+        await self.db.session.commit()
+        return user
 
     async def get_user_profile(
         self, attr_name, attr_value: int | str
     ) -> UsersOrm:
         """
-        Retrieve a user profile by its ID.
+        Retrieve a user profile by its ID or username.
 
         Raises:
             ValueError: If the user is not found.
         """
-        return await self.db.users.get_one_by_field(attr_name, attr_value)
+        return await self.db.users.get_user(attr_name, attr_value)
 
     async def delete_account(self, user_id: int) -> None:
         """

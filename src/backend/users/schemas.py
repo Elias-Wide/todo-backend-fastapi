@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
 from backend.users.constants import (
+    PASSWORD_HASH_LENGTH,
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,
     USERNAME_MAX_LENGTH,
@@ -23,6 +24,17 @@ class SUser(BaseModel):
         default=None, description='Telegram ID of the user'
     )
     model_config = ConfigDict(from_attributes=True)
+
+
+class SUserLoginRequest(SUser):
+    """
+    Schema for user login.
+    This model includes the username and password fields,
+    which are required for authenticating a user. The validation rules ensure
+    that the username and password meet the specified length requirements.
+    """
+
+    password_hash: str = Field(..., max_length=PASSWORD_HASH_LENGTH)
 
 
 class SUserRegister(BaseModel):

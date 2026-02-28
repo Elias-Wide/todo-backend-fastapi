@@ -53,3 +53,12 @@ class TasksService:
         """
         task = await self.get_task(user_id, task_id)
         await self.db.tasks.delete(db_obj=task)
+
+    async def get_user_tasks(self, user_id: int) -> list[STask]:
+        """
+        Retrieve all tasks associated with a specific user.
+
+        Returns:
+            A list of STask instances representing the user's tasks.
+        """
+        return await self.db.tasks.get_tasks_by_user(user_id=user_id)

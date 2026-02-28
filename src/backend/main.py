@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from backend.api.routes.tasks import router as tasks_router
+from backend.api.services import ApiManager
 from backend.db.database import create_tables, drop_tables
 
 
@@ -14,4 +14,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(tasks_router)
+api_manager: ApiManager = ApiManager()
+api_manager.discover_routers()
+api_manager.register_routes(app)

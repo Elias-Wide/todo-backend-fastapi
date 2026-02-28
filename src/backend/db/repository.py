@@ -5,8 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core.logging import get_logger
 from backend.db.database import Model
-from core.logging import get_logger
 
 logger = get_logger(__name__)
 ModelType = TypeVar('ModelType', bound=Model)
@@ -24,7 +24,6 @@ class SQLAlchemyRepository(Generic[ModelType, SchemaType]):
     """
 
     model: Type[ModelType] = None
-    schema: Type[SchemaType] = None
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -51,11 +50,7 @@ class SQLAlchemyRepository(Generic[ModelType, SchemaType]):
         try:
             query = select(self.model)
             result = await self.session.execute(query)
-            model_objs = result.scalars().all()
-
-            if self.schema:
-                return [self.schema.model_validate(obj) for obj in model_objs]
-            return model_objs
+            return result.scalars().all()
         except SQLAlchemyError as e:
             raise RuntimeError('Failed to fetch records') from e
 
@@ -67,11 +62,7 @@ class SQLAlchemyRepository(Generic[ModelType, SchemaType]):
             getattr(self.model, attr_name) == attr_value
         )
         result = await self.session.execute(query)
-        obj = result.scalars().first()
-
-        if obj and self.schema:
-            return self.schema.model_validate(obj)
-        return obj
+        return result.scalars().first()
 
     async def update(self, db_obj: ModelType, obj_in: SchemaType) -> ModelType:
         """Update an object in the current session context."""

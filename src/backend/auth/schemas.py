@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from backend.core.config import settings
 
 
-class JWTPayload(BaseModel):
+class SJWTPayload(BaseModel):
     """Schema for JWT payload validation."""
 
     sub: str
@@ -11,3 +11,18 @@ class JWTPayload(BaseModel):
     iat: int
     exp: int
     iss: str = Field(default=settings.app.name)
+
+
+class STokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = 'bearer'
+
+
+class SLoginRequest(BaseModel):
+    name: str = Field(..., example='johndoe')
+    password: str = Field(..., example='strongpassword123')
+
+
+class SRefreshRequest(BaseModel):
+    refresh_token: str

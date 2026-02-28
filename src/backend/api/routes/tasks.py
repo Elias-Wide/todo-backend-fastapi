@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from backend.api.dependecies import DBManagerDep
+from fastapi import APIRouter, Depends
+
+from backend.api.dependecies import DBManagerDep, get_current_user
 from backend.tasks.schemas import STask, STaskAdd
 from backend.tasks.services import TasksService
 from backend.users.models import UsersOrm
-from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix='/tasks', tags=['Tasks'])
 
@@ -15,7 +16,7 @@ async def get_tasks(
     db: DBManagerDep,
 ) -> list[STask]:
     service = TasksService(db)
-    return await service.get_tasks_for_user(user=user)
+    return await service.get_user_tasks(user_id=user.id)
 
 
 @router.post('')
@@ -25,5 +26,5 @@ async def add_task(
     db: DBManagerDep,
 ):
     service = TasksService(db)
-    task_id = await service.create_task(user, task)
+    task_id = await service.create_task(user.id, task)
     return {'id': task_id}

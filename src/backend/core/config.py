@@ -6,9 +6,7 @@ from pydantic import Field, SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from backend.core.constants import (
-    DEFAULT_ACCESS_TOKEN_EXPIRES_MIN,
     DEFAULT_JWT_ALGORITHM,
-    DEFAULT_REFRESH_TOKEN_EXPIRES_MIN,
 )
 
 BACKEND_DIR = BASE_DIR / 'src' / 'backend'
@@ -54,17 +52,52 @@ class UserAuthConfig(ConfigBase):
     jwt_algorithm: str = Field(
         default=DEFAULT_JWT_ALGORITHM, alias='AUTH_JWT_ALGORITHM'
     )
-    jwt_secret_key: str = Field(
-        default='change-me', alias='AUTH_JWT_SECRET_KEY'
-    )
+    jwt_secret_key: str = Field(alias='AUTH_JWT_SECRET_KEY')
     access_token_expires_minutes: int = Field(
-        default=DEFAULT_ACCESS_TOKEN_EXPIRES_MIN,
+        default=15,
         alias='AUTH_ACCESS_TOKEN_EXPIRES_MINUTES',
     )
     refresh_token_expires_minutes: int = Field(
-        default=DEFAULT_REFRESH_TOKEN_EXPIRES_MIN,
+        default=60 * 24 * 30,
         alias='AUTH_REFRESH_TOKEN_EXPIRES_MINUTES',
     )
+    session_ttl_minutes: int = Field(
+        default=60 * 24,
+        alias='AUTH_SESSION_TTL_MINUTES',
+    )
+    session_extend_minutes: int = Field(
+        default=60 * 24 * 7,
+        alias='AUTH_SESSION_EXTEND_MINUTES',
+    )
+    session_rolling_interval_minutes: int = Field(
+        default=10,
+        alias='AUTH_SESSION_ROLLING_INTERVAL_MINUTES',
+    )
+    session_absolute_timeout_days: int = Field(
+        default=30,
+        alias='AUTH_SESSION_ABSOLUTE_TIMEOUT_DAYS',
+    )
+    session_cookie_name: str = Field(
+        default='session_id',
+        alias='AUTH_SESSION_COOKIE_NAME',
+    )
+    session_cookie_secure: bool = Field(
+        default=False,
+        alias='AUTH_SESSION_COOKIE_SECURE',
+    )
+    session_cookie_domain: str | None = Field(
+        default=None,
+        alias='AUTH_SESSION_COOKIE_DOMAIN',
+    )
+    access_cookie_name: str = Field(
+        default='access_token',
+        alias='AUTH_ACCESS_COOKIE_NAME',
+    )
+    refresh_cookie_name: str = Field(
+        default='refresh_token',
+        alias='AUTH_REFRESH_COOKIE_NAME',
+    )
+
     model_config = SettingsConfigDict(env_prefix='auth_')
 
 

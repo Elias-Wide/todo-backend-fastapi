@@ -4,8 +4,9 @@ from typing import Optional
 from pydantic import SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-ENV_PATH = BASE_DIR / "src" / "infra" / "main.env"
+BASE_DIR = Path(__file__).resolve().parent
+print(f"BASE_DIR: {BASE_DIR}")
+ENV_PATH = BASE_DIR / "infra" / ".env"
 
 
 class ConfigBase(BaseSettings):

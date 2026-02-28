@@ -1,10 +1,11 @@
 from typing import Annotated, AsyncGenerator
 
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from backend.db.database import SessionLocal, get_session
 from backend.db.db_manager import DBManager
 from backend.users.models import UsersOrm
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
 

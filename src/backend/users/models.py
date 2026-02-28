@@ -15,14 +15,14 @@ class UsersOrm(Model):
 
     Attributes:
         username: Unique login name for the user.
-        hashed_password: Securely stored password hash.
+        password_hash: Securely stored password hash.
         tg_id: Telegram account ID for bot interaction.
         created_at: Timestamp when the user was registered.
         refresh_tokens: List of active or expired session tokens.
     """
 
     username: Mapped[str] = mapped_column(String(), unique=True)
-    hashed_password: Mapped[str] = mapped_column(String())
+    password_hash: Mapped[str] = mapped_column(String())
     tg_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -31,7 +31,7 @@ class UsersOrm(Model):
     refresh_tokens: Mapped[list['RefreshTokensOrm']] = relationship(
         back_populates='user', cascade='all, delete-orphan'
     )
-    tasks: Mapped[List[TasksOrm]] = relationship(
+    tasks: Mapped[List['TasksOrm']] = relationship(
         back_populates='user',
         cascade='all, delete-orphan',
     )
