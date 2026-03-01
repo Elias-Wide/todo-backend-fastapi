@@ -27,6 +27,7 @@ class UsersRepository(SQLAlchemyRepository):
         user = self.model(username=username, password_hash=password_hash)
         self.session.add(user)
         await self.session.flush()
+        await self.session.commit()
         return user
 
     async def find_all(self) -> list[STask]:

@@ -1,11 +1,13 @@
 from datetime import datetime
-from typing import List
+from typing import TYPE_CHECKING, List
 
 from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.db.database import Model
-from backend.tasks.models import TasksOrm
+
+if TYPE_CHECKING:
+    from backend.tasks.models import TasksOrm
 from backend.users.constants import TOKEN_HASH_LENGTH
 
 

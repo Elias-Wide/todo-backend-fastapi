@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,8 +26,13 @@ class STaskAdd(BaseModel):
         False, description='Indicates if the task should repeat daily'
     )
     model_config = ConfigDict(from_attributes=True)
-    scheduled_time: Optional[str] = Field(
-        None, description='Specific time of day the task, in HH:MM format'
+    scheduled_time: Optional[datetime] = Field(
+        None,
+        examples=[
+            '2023-10-27T10:00:00',
+        ],
+        description='Specific time of day the task, in HH:MM format',
+        json_schema_extra={'format': 'date-time'},
     )
 
 
@@ -43,6 +49,3 @@ class STask(STaskAdd):
         ..., description='The unique database identifier for the task'
     )
     model_config = ConfigDict(from_attributes=True)
-    is_daily: bool = Field(
-        ..., description='Indicates if the task should repeat daily'
-    )

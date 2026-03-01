@@ -22,6 +22,7 @@ class DBManager:
         self.users: UsersRepository | None = None
         self.tasks: TasksRepository | None = None
         self.auth: AuthRepository | None = None
+        self._committed = False
 
     async def __aenter__(self) -> 'DBManager':
         self.session = self.session_factory()
@@ -36,7 +37,7 @@ class DBManager:
         Rolls back only if an exception occurred.
         """
         try:
-            if exc_type:
+            if exc_type or not self._committed:
                 await self.session.rollback()
         finally:
             await self.session.close()
@@ -48,3 +49,4 @@ class DBManager:
         """
         if self.session:
             await self.session.commit()
+            self._committed = True

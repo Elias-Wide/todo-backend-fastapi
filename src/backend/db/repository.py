@@ -89,7 +89,8 @@ class SQLAlchemyRepository(Generic[ModelType, SchemaType]):
             model_obj = self.model(**data_dict)
             self.session.add(model_obj)
             await self.session.flush()
-            return model_obj.id
+            await self.session.commit()
+            return model_obj
         except IntegrityError as e:
             raise ValueError(f'Record already exists: {e}') from e
         except Exception as e:

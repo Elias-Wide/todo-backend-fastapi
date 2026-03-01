@@ -1,5 +1,4 @@
-from select import select
-
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db.repository import SQLAlchemyRepository
@@ -13,7 +12,6 @@ class TasksRepository(SQLAlchemyRepository):
     """
 
     model: TasksOrm = TasksOrm
-    schema: STask = STask
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -25,8 +23,8 @@ class TasksRepository(SQLAlchemyRepository):
         Returns:
             List of STask objects representing all tasks in the system.
         """
-        model_objs = await super().find_all(self.session)
-        return [self.schema.model_validate(obj) for obj in model_objs]
+        model_objs = await super().find_all()
+        return [STask.model_validate(obj) for obj in model_objs]
 
     async def create_task(self, user_id: int, task_data: STaskAdd) -> int:
         """
@@ -41,7 +39,8 @@ class TasksRepository(SQLAlchemyRepository):
         """
         task_dict = task_data.model_dump()
         task_dict['user_id'] = user_id
-        return await self.add_one_from_dict(self.session, task_dict)
+        task = await self.add_one_from_dict(task_dict)
+        return STask.model_validate(task)
 
     async def get_task_by_id(self, user_id: int, task_id: int) -> TasksOrm:
         """
@@ -60,7 +59,7 @@ class TasksRepository(SQLAlchemyRepository):
             raise ValueError(
                 f'Task with ID {task_id} not found for user {user_id}'
             )
-        return task_obj
+        return STask.model_validate(task_obj)
 
     async def get_tasks_by_user(self, user_id: int) -> list[STask]:
         """
@@ -74,5 +73,4 @@ class TasksRepository(SQLAlchemyRepository):
         """
         query = select(self.model).where(self.model.user_id == user_id)
         result = await self.session.execute(query)
-        task_objs = result.scalars().all()
-        return [self.schema.model_validate(obj) for obj in task_objs]
+        return [STask.model_validate(obj) for obj in result.scalars().all()]

@@ -3,14 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from backend.api.services import ApiManager
-from backend.db.database import create_tables, drop_tables
+from backend.db.database import create_tables
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
     yield
-    await drop_tables()
+    # await drop_tables()
 
 
 app = FastAPI(lifespan=lifespan)
