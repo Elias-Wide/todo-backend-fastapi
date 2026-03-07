@@ -7,6 +7,10 @@ class AppError(Exception):
         return self.msg
 
 
+class AccessDeniedError(AppError):
+    msg = 'Access denied: You are not the owner of this task'
+
+
 class RepositoryNotInitializedError(AppError):
     """Repository is not initialized in DBManager."""
 
@@ -41,3 +45,7 @@ class RefreshTokenExpiredError(AppError):
     """Refresh token has expired."""
 
     msg = 'Refresh token has expired. Please log in again.'
+
+
+class TaskNotFoundError(AppError):
+    msg = 'Task with this id not found'

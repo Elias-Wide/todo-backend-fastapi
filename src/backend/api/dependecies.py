@@ -48,7 +48,7 @@ async def get_current_user(
             detail='Invalid token',
         ) from e
     service = UsersService(db)
-    user = await service.get_user_profile('id', int(user_id))
+    user = await service.get_user_profile(int(user_id))
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

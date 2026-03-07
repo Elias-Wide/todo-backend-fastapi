@@ -40,20 +40,37 @@ class UsersRepository(SQLAlchemyRepository):
         model_objs = await super().find_all(self.session)
         return [SUser.model_validate(obj) for obj in model_objs]
 
-    async def get_user(
-        self, attr_name, attr_value: int | str
+    async def get_user_by_id(self, user_id: int) -> SUserLoginRequest | None:
+        """
+        Retrieves a user by their unique ID.
+
+        Args:
+            user_id: The integer ID of the user to retrieve.
+
+        Returns:
+            An SUserLoginRequest object if found, otherwise None.
+        """
+        model_obj = await self.get_one_by_field(
+            attr_name='id', attr_value=user_id
+        )
+        return (
+            SUserLoginRequest.model_validate(model_obj) if model_obj else None
+        )
+
+    async def get_user_by_username(
+        self, username: str
     ) -> SUserLoginRequest | None:
         """
         Retrieves a user by their username.
 
         Args:
-            username: The username of the user to retrieve.
+            username: The string username of the user to retrieve.
 
         Returns:
-            An SUser object if found, otherwise None.
+            An SUserLoginRequest object if found, otherwise None.
         """
         model_obj = await self.get_one_by_field(
-            attr_name=attr_name, attr_value=attr_value
+            attr_name='username', attr_value=username
         )
         return (
             SUserLoginRequest.model_validate(model_obj) if model_obj else None

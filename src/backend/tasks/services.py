@@ -1,3 +1,4 @@
+from backend.core.exceptions import AccessDeniedError, TaskNotFoundError
 from backend.db.db_manager import DBManager
 from backend.tasks.models import TasksOrm
 from backend.tasks.schemas import STask
@@ -28,9 +29,12 @@ class TasksService:
         Raises:
             ValueError: If the task does not exist.
         """
-        return await self.db.tasks.get_task_by_id(
-            user_id=user_id, task_id=task_id
-        )
+        try:
+            return await self.db.tasks.get_task_by_id(
+                user_id=user_id, task_id=task_id
+            )
+        except ValueError as e:
+            raise TaskNotFoundError from e
 
     async def update_task(
         self, user_id: int, task_id: int, task_data: STask
@@ -51,8 +55,13 @@ class TasksService:
         Raises:
             ValueError: If the task is not found.
         """
-        task = await self.get_task(user_id, task_id)
+        task: TasksOrm = await self.db.tasks.get_one_by_field('id', task_id)
+        if not task:
+            raise TaskNotFoundError(f'Task {task_id} not found')
+        if task.user_id != user_id:
+            raise AccessDeniedError()
         await self.db.tasks.delete(db_obj=task)
+        await self.db.commit()
 
     async def get_user_tasks(self, user_id: int) -> list[STask]:
         """

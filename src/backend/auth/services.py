@@ -19,7 +19,7 @@ class AuthServiceJWT:
         self.db = db
 
     async def _get_user_or_raise(self, username: str, password: str):
-        user: UsersOrm = await self.db.users.get_user('username', username)
+        user: UsersOrm = await self.db.users.get_user_by_username(username)
         if not user or not security.verify_password(
             password, user.password_hash
         ):
@@ -33,9 +33,15 @@ class AuthServiceJWT:
 
     async def refresh(self, raw_refresh_token: str):
         stored = await self._get_valid_refresh(raw_refresh_token)
-        user = await self._get_user_for_token(stored.user_id)
+        user: UsersOrm = await self._get_user_for_token(stored.user_id)
         await self.db.auth.delete_refresh_token(stored)
         return await self._issue_tokens(user.id)
+
+    async def delete_refresh_token(self, raw_refresh_token: str):
+        stored = await self._get_valid_refresh(raw_refresh_token)
+        if not stored or stored.revoked:
+            raise RefreshTokenNotFoundError
+        await self.db.auth.delete_refresh_token(stored)
 
     async def _get_valid_refresh(self, raw_refresh_token: str):
         token_hash = tokens.hash_token(raw_refresh_token)
@@ -49,7 +55,7 @@ class AuthServiceJWT:
         return stored
 
     async def _get_user_for_token(self, user_id: int):
-        user = await self.db.users.get_user('id', user_id)
+        user = await self.db.users.get_user_by_id(user_id)
         if not user:
             raise UserNotFoundError
         return user

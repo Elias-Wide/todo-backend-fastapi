@@ -1,10 +1,18 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 
-from backend.api.dependecies import DBManagerDep
+from backend.api.dependecies import DBManagerDep, get_current_user
 from backend.auth.schemas import SLoginRequest, SRefreshRequest, STokenPair
 from backend.auth.services import AuthServiceJWT
+from backend.auth.tokens import BaseCookie, get_cookie_config
 from backend.core.config import settings
 from backend.core.exceptions import (
     AppError,
@@ -14,6 +22,7 @@ from backend.core.exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from backend.users.models import UsersOrm
 from backend.users.schemas import SUser, SUserRegister
 from backend.users.services import UsersService
 
@@ -24,25 +33,31 @@ def _set_token_cookies(
     response: Response, access_token: str, refresh_token: str
 ) -> None:
     """Set access and refresh tokens in HTTP-only cookies."""
+    cookie: BaseCookie = get_cookie_config()
     response.set_cookie(
-        key=settings.auth.access_cookie_name,
-        value=access_token,
-        httponly=False,
-        secure=settings.auth.session_cookie_secure,
-        samesite='lax',
-        max_age=settings.auth.access_token_expires_minutes * 60,
-        domain=settings.auth.session_cookie_domain,
-        path='/',
+        **cookie.get_set_params(
+            key=settings.auth.access_cookie_name,
+            value=access_token,
+            max_age_minutes=settings.auth.access_token_expires_minutes,
+        )
     )
     response.set_cookie(
-        key=settings.auth.refresh_cookie_name,
-        value=refresh_token,
-        httponly=False,
-        secure=settings.auth.session_cookie_secure,
-        samesite='lax',
-        max_age=settings.auth.refresh_token_expires_minutes * 60,
-        domain=settings.auth.session_cookie_domain,
-        path='/',
+        **cookie.get_set_params(
+            key=settings.auth.refresh_cookie_name,
+            value=refresh_token,
+            max_age_minutes=settings.auth.refresh_token_expires_minutes,
+        )
+    )
+
+
+def _delete_token_cookies(response: Response) -> None:
+    """Clear access and refresh tokens from cookies."""
+    cookie: BaseCookie = get_cookie_config()
+    response.delete_cookie(
+        **cookie.get_delete_params(key=settings.auth.access_cookie_name)
+    )
+    response.delete_cookie(
+        **cookie.get_delete_params(key=settings.auth.refresh_cookie_name)
     )
 
 
@@ -88,6 +103,25 @@ async def login(
     )
 
 
+@router.post('/logout', summary='Log out the current user')
+async def logout_user(
+    user: Annotated[UsersOrm, Depends(get_current_user)],
+    db: DBManagerDep,
+    response: Response,
+    request: Request,
+):
+    refresh_token = request.cookies.get('refresh_token')
+
+    auth_service = AuthServiceJWT(db)
+
+    if refresh_token:
+        await auth_service.delete_refresh_token(refresh_token)
+
+    _delete_token_cookies(response)
+
+    return {'status': 'Successfully logged out'}
+
+
 @router.post(
     '/token/refresh', summary='Refresh JWT tokens using a refresh token'
 )
@@ -116,3 +150,12 @@ async def refresh_tokens(
         ) from err
     _set_token_cookies(response, pair.access_token, pair.refresh_token)
     return pair
+
+
+@router.post('/me')
+async def get_profile(
+    user: Annotated[UsersOrm, Depends(get_current_user)],
+    db: DBManagerDep,
+) -> SUser:
+    service = UsersService(db)
+    return await service.get_user_profile(user.id)

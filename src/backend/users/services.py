@@ -33,16 +33,16 @@ class UsersService:
         await self.db.session.commit()
         return user
 
-    async def get_user_profile(
-        self, attr_name, attr_value: int | str
-    ) -> UsersOrm:
+    async def get_user_profile(self, attr_value: int | str) -> UsersOrm:
         """
         Retrieve a user profile by its ID or username.
 
         Raises:
             ValueError: If the user is not found.
         """
-        return await self.db.users.get_user(attr_name, attr_value)
+        if str(attr_value).isdigit():
+            return await self.db.users.get_user_by_id(attr_value)
+        return await self.db.users.get_user_by_username(attr_value)
 
     async def delete_account(self, user_id: int) -> None:
         """

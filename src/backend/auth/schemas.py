@@ -25,4 +25,4 @@ class SLoginRequest(BaseModel):
 
 
 class SRefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str = Field(..., example='fdfdfb12wfvfc')

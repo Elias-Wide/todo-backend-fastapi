@@ -1,5 +1,6 @@
 import hashlib
 import secrets
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
 import jwt  # Используем стандартный модуль
@@ -68,3 +69,64 @@ class TokenHelper:
 
 
 tokens = TokenHelper()
+
+
+@dataclass
+class BaseCookie:
+    """
+    Base configuration for JWT cookies used in authentication.
+
+    Centralizes common cookie attributes to ensure consistency between
+    Access and Refresh tokens.
+    """
+
+    httponly: bool = True
+    secure: bool = settings.auth.session_cookie_secure
+    samesite: str = 'lax'
+    domain: str = settings.auth.session_cookie_domain
+    path: str = '/'
+
+    def get_set_params(
+        self, key: str, value: str, max_age_minutes: int
+    ) -> dict:
+        """
+        Generates a full set of parameters for the response.set_cookie method.
+
+        Args:
+            key: The name of the cookie.
+            value: The token string to store.
+            max_age_minutes: Expiration time in minutes (converted to seconds).
+
+        Returns:
+            A dictionary of keyword arguments for response.set_cookie.
+        """
+        return {
+            'key': key,
+            'value': value,
+            'httponly': self.httponly,
+            'secure': self.secure,
+            'samesite': self.samesite,
+            'domain': self.domain,
+            'path': self.path,
+            'max_age': max_age_minutes * 60,
+        }
+
+    def get_delete_params(self, key: str) -> dict:
+        """
+        Generates parameters for the response.delete_cookie method.
+
+        Ensures that the cookie is deleted using the same domain and path
+        it was created with.
+        """
+        return {
+            'key': key,
+            'httponly': self.httponly,
+            'secure': self.secure,
+            'samesite': self.samesite,
+            'domain': self.domain,
+            'path': self.path,
+        }
+
+
+def get_cookie_config() -> BaseCookie:
+    return BaseCookie()
