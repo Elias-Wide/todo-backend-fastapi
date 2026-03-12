@@ -23,6 +23,7 @@ dependencies = [
     "httpx (>=0.28.1,<0.29.0)",
     "aiosqlite (>=0.22.1,<0.23.0)",
     "pytest-lazy-fixtures (>=1.4.0,<2.0.0)",
+    "faker (>=40.8.0,<41.0.0)",
 ]
 
 [tool.poetry]

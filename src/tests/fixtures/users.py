@@ -31,6 +31,11 @@ def user_data_missing_fields():
 
 
 @pytest.fixture(scope='function')
-async def create_user(db_session: DBManager, valid_user_data: dict):
+async def registered_user(db_session: DBManager, valid_user_data: dict):
     service = UsersService(db_session)
-    return await service.register_user(SUserRegister(**valid_user_data))
+    user = await service.get_user_profile(valid_user_data['username'])
+    return (
+        user
+        if user
+        else await service.register_user(SUserRegister(**valid_user_data))
+    )

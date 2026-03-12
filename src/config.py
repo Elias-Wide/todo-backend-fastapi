@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 from cryptography.fernet import Fernet
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
@@ -32,15 +32,34 @@ class DatabaseConfig(ConfigBase):
     user: str
     url: Optional[str] = Field(default=None)
 
+    test_host: str = 'localhost'
+    test_name: str = 'test_db'
+    test_password: SecretStr = SecretStr('postgres')
+    test_port: int = 5432
+    test_user: str = 'postgres'
+    test_url: Optional[str] = Field(default=None)
+
     @field_validator('url', mode='before')
     @classmethod
     def assemble_url(cls, v: Optional[str], info: ValidationInfo) -> str:
         if not v:
-            pwd = info.data.get('password').get_secret_value()
             return (
                 f'postgresql+asyncpg://{info.data.get("user")}:'
-                f'{pwd}@{info.data.get("host")}:'
-                f'{info.data.get("port")}/{info.data.get("name")}'
+                f'{info.data.get("password").get_secret_value()}@'
+                f'{info.data.get("host")}:{info.data.get("port")}/'
+                f'{info.data.get("name")}'
+            )
+        return v
+
+    @field_validator('test_url', mode='before')
+    @classmethod
+    def assemble_test_url(cls, v: Optional[str], info: ValidationInfo) -> str:
+        if not v:
+            return (
+                f'postgresql+asyncpg://{info.data.get("test_user")}:'
+                f'{info.data.get("test_password").get_secret_value()}@'
+                f'{info.data.get("test_host")}:{info.data.get("test_port")}/'
+                f'{info.data.get("test_name")}'
             )
         return v
 
@@ -54,6 +73,7 @@ class AppAuthConfig(ConfigBase):
     """
 
     model_config = SettingsConfigDict(env_prefix='app_')
+    mode: Literal['DEV', 'TEST', 'PROD']
     name: str = 'ToDo'
     logging_mode: str = 'on'
     admin_email: str

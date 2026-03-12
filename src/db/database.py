@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, NullPool
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -13,7 +13,17 @@ from sqlalchemy.orm import (
 
 from src.config import settings
 
-engine = create_async_engine(url=settings.db.url, echo=True)
+if settings.app.mode == 'TEST':
+    DATABASE_URL = settings.db.test_url
+    DATABASE_PARAMS = {'poolclass': NullPool}
+if settings.app.mode == 'DEV':
+    DATABASE_URL = settings.db.url
+    DATABASE_PARAMS = {'echo': True}
+else:
+    DATABASE_URL = settings.db.url
+    DATABASE_PARAMS = {}
+
+engine = create_async_engine(DATABASE_URL, **DATABASE_PARAMS)
 
 SessionLocal = async_sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
