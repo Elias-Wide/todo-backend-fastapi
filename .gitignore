@@ -6,6 +6,7 @@ __pycache__/
 # C extensions
 *.so
 # Distribution / packaging
+
 .vscode
 .Python
 build/
@@ -208,3 +209,4 @@ __marimo__/
 
 .vscode/
 todo-assistant.code-workspace
+test.db

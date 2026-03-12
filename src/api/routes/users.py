@@ -1,4 +1,4 @@
-src.from typing import Annotated
+from typing import Annotated
 
 from fastapi import (
     APIRouter,
@@ -61,9 +61,9 @@ def _delete_token_cookies(response: Response) -> None:
     )
 
 
-@router.post('/register')
+@router.post('/register', status_code=status.HTTP_201_CREATED)
 async def register_user(
-    user_data: Annotated[SUserRegister, Depends()],
+    user_data: SUserRegister,
     db: DBManagerDep,
 ) -> SUser:
     """Register a new user and return the user data."""
@@ -78,7 +78,7 @@ async def register_user(
 
 @router.post('/login', summary='Authenticate user and obtain JWT tokens')
 async def login(
-    data: Annotated[SLoginRequest, Depends()],
+    data: SLoginRequest,
     db: DBManagerDep,
     response: Response,
 ) -> STokenPair:
@@ -86,7 +86,7 @@ async def login(
     jwt_service = AuthServiceJWT(db)
     try:
         access_token, refresh_token = await jwt_service.login(
-            data.name, data.password
+            data.username, data.password
         )
     except InvalidCredentialsError as err:
         raise HTTPException(

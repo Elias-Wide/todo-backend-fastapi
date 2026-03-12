@@ -2,8 +2,6 @@ import asyncio
 from typing import AsyncGenerator
 
 import pytest
-from alembic import command
-from alembic.config import Config
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -11,9 +9,12 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from api.dependecies import get_db_manager
-from db.db_manager import DBManager
-from main import app
+from src.api.dependecies import get_db_manager
+from src.core.constants import MAIN_API_ROUTE
+from src.db.database import Model
+from src.db.db_manager import DBManager
+from src.main import app
+from src.tests.fixtures.users import *  # noqa: F403, F401
 
 TEST_DATABASE_URL = 'sqlite+aiosqlite:///./test.db'
 
@@ -21,6 +22,11 @@ test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestSessionLocal = async_sessionmaker(
     test_engine, expire_on_commit=False, class_=AsyncSession
 )
+
+
+@pytest.fixture
+def main_api_route() -> str:
+    return MAIN_API_ROUTE
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -32,34 +38,12 @@ def event_loop():
 
 @pytest.fixture(scope='function')
 async def db_session() -> AsyncGenerator[DBManager, None]:
+    async with test_engine.begin() as conn:
+        await conn.run_sync(Model.metadata.create_all)
     async with DBManager(session_factory=TestSessionLocal) as manager:
         yield manager
-
-
-def run_migrations(connection):
-    config = Config('alembic.ini')
-    config.set_main_option('sqlalchemy.url', TEST_DATABASE_URL)
-    command.upgrade(config, 'head')
-
-
-def downgrade_migrations(connection):
-    config = Config('alembic.ini')
-    config.set_main_option('sqlalchemy.url', TEST_DATABASE_URL)
-    command.downgrade(config, 'base')
-
-
-@pytest.fixture(scope='function')
-async def db_session():
-    # Прогоняем миграции вверх
     async with test_engine.begin() as conn:
-        await conn.run_sync(run_migrations)
-
-    async with DBManager(session_factory=TestSessionLocal) as manager:
-        yield manager
-
-    # Откатываем миграции вниз (чтобы база была чистой)
-    async with test_engine.begin() as conn:
-        await conn.run_sync(downgrade_migrations)
+        await conn.run_sync(Model.metadata.drop_all)
 
 
 @pytest.fixture(scope='function')

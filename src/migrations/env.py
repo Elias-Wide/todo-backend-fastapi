@@ -7,9 +7,9 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from db.database import Model
-from users.models import RefreshTokensOrm, UsersOrm # noqa
-from tasks.models import TasksOrm # noqa
+from src.db.database import Model
+from src.users.models import RefreshTokensOrm, UsersOrm # noqa
+from src.tasks.models import TasksOrm # noqa
 from src.config import settings
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 # this is the Alembic Config object, which provides

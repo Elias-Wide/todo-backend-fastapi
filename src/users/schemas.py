@@ -1,4 +1,11 @@
-from pydantic import BaseModel, ConfigDict, Field
+import re
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+)
 
 from src.users.constants import (
     PASSWORD_HASH_LENGTH,
@@ -6,6 +13,7 @@ from src.users.constants import (
     PASSWORD_MIN_LENGTH,
     USERNAME_MAX_LENGTH,
     USERNAME_MIN_LENGTH,
+    USERNAME_VALID_PATTERN,
 )
 
 
@@ -51,6 +59,19 @@ class SUserRegister(BaseModel):
         ..., min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH
     )
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator('username')
+    @classmethod
+    def validate_username(cls, value: str) -> str:
+        if value.isdigit():
+            raise ValueError('Username cannot consist only of digits')
+
+        if not re.match(USERNAME_VALID_PATTERN, value):
+            raise ValueError(
+                'Username must contain only alphanumeric '
+                'characters or underscores'
+            )
+        return value
 
 
 class SUserLogin(BaseModel):

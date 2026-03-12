@@ -23,7 +23,7 @@ class UsersService:
         Returns:
             The ID of the newly created user record.
         """
-        existing = await self.db.users.get_user('username', user_data.username)
+        existing = await self.db.users.get_user_by_username(user_data.username)
         if existing:
             raise UserAlreadyExistsError
         user = await self.db.users.create_user(

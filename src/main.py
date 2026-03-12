@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.api.services import ApiManager
+from src.api.api_v1 import api_v1_router as main_router
 
 
 @asynccontextmanager
@@ -11,6 +11,4 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-api_manager: ApiManager = ApiManager()
-api_manager.discover_routers()
-api_manager.register_routes(app)
+app.include_router(main_router, prefix='/api')
