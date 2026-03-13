@@ -7,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.database import Model
 
 if TYPE_CHECKING:
-    from src.tasks.models import TasksOrm
-from src.users.constants import TOKEN_HASH_LENGTH
+    from src.models.tasks import TasksOrm
+from src.core.constants.users import TOKEN_HASH_LENGTH
 
 
 class UsersOrm(Model):

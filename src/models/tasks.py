@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Time, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.database import Model
-from src.users.models import UsersOrm
+from src.models.users import UsersOrm
 
 
 class TasksOrm(Model):

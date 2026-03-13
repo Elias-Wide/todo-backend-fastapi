@@ -1,6 +1,6 @@
 from src.core.exceptions import AccessDeniedError, TaskNotFoundError
 from src.db.db_manager import DBManager
-from src.tasks.models import TasksOrm
+from src.models.tasks import TasksOrm
 from src.tasks.schemas import STask
 
 

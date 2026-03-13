@@ -4,10 +4,12 @@ from typing import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from src.dependecies.db_maneger import get_db_manager
+from src.dependecies.users import get_current_user
+
 os.environ['APP_MODE'] = 'TEST'
 
-from src.api.dependecies import get_current_user, get_db_manager
-from src.core.constants import MAIN_API_ROUTE
+from src.core.constants.core import MAIN_API_ROUTE
 from src.db.database import Model, SessionLocal, engine
 from src.db.db_manager import DBManager
 from src.main import app

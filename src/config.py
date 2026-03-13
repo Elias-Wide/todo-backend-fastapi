@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.constants import (
+from src.core.constants.core import (
     DEFAULT_JWT_ALGORITHM,
 )
 

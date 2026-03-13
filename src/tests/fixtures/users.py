@@ -1,8 +1,8 @@
 import pytest
 
 from src.db.db_manager import DBManager
-from src.users.schemas import SUserRegister
-from src.users.services import UsersService
+from src.schemas.users import SUserRegister
+from src.services.users import UsersService
 
 
 @pytest.fixture

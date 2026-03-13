@@ -2,11 +2,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from src.api.dependecies import DBManagerDep, get_current_user
 from src.core.exceptions import TaskNotFoundError
-from src.tasks.schemas import STask, STaskAdd
-from src.tasks.services import TasksService
-from src.users.models import UsersOrm
+from src.dependecies.db_maneger import DBManagerDep
+from src.dependecies.users import get_current_user
+from src.models.users import UsersOrm
+from src.schemas.tasks import STask, STaskAdd
+from src.services.tasks import TasksService
 
 router = APIRouter(prefix='/tasks', tags=['Tasks'])
 

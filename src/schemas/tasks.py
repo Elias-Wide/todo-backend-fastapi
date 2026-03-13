@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.tasks.constants import (
+from src.core.constants.tasks import (
     DESCRIPTION_MAX_LENGTH,
     TASK_MAX_LENGTH,
     TASK_MIN_LENGTH,

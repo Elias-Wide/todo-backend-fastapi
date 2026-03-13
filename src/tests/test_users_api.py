@@ -69,7 +69,7 @@ class TestUserAuthentication:
         user_data_missing_fields: dict,
         user_login_route: str,
     ):
-        """Verify 422 error when required fields are missing in login request."""
+        """Verify 422 error when required fields are missing request."""
         response = await client.post(
             user_login_route, json=user_data_missing_fields
         )

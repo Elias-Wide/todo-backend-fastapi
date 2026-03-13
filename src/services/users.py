@@ -1,8 +1,8 @@
 from src.auth.security import security
 from src.core.exceptions import UserAlreadyExistsError
 from src.db.db_manager import DBManager
-from src.users.models import UsersOrm
-from src.users.schemas import SUserRegister
+from src.models.users import UsersOrm
+from src.schemas.users import SUserRegister
 
 
 class UsersService:

@@ -1,8 +1,5 @@
 from datetime import datetime, timedelta, timezone
 
-from src.auth.schemas import STokenPair
-from src.auth.security import security
-from src.auth.tokens import tokens
 from src.config import settings
 from src.core.exceptions import (
     InvalidCredentialsError,
@@ -11,7 +8,9 @@ from src.core.exceptions import (
     UserNotFoundError,
 )
 from src.db.db_manager import DBManager
-from src.users.models import UsersOrm
+from src.models.users import UsersOrm
+from src.schemas.schemas import STokenPair
+from src.services.auth import security, tokens
 
 
 class AuthServiceJWT:

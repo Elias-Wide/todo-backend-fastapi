@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.repository import SQLAlchemyRepository
-from src.tasks.schemas import STask
-from src.users.models import UsersOrm
-from src.users.schemas import SUser, SUserLoginRequest
+from src.models.users import UsersOrm
+from src.repositories.base import SQLAlchemyRepository
+from src.schemas.tasks import STask
+from src.schemas.users import SUser, SUserLoginRequest
 
 
 class UsersRepository(SQLAlchemyRepository):

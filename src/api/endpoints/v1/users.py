@@ -10,8 +10,6 @@ from fastapi import (
 )
 
 from src.api.dependecies import DBManagerDep, get_current_user
-from src.auth.schemas import SLoginRequest, SRefreshRequest, STokenPair
-from src.auth.services import AuthServiceJWT
 from src.auth.tokens import BaseCookie, get_cookie_config
 from src.config import settings
 from src.core.exceptions import (
@@ -22,9 +20,11 @@ from src.core.exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from src.users.models import UsersOrm
-from src.users.schemas import SUser, SUserRegister
-from src.users.services import UsersService
+from src.models.users import UsersOrm
+from src.schemas.schemas import SLoginRequest, SRefreshRequest, STokenPair
+from src.schemas.users import SUser, SUserRegister
+from src.services.auth.auth import AuthServiceJWT
+from src.services.users import UsersService
 
 router = APIRouter(prefix='/users', tags=['users'])
 

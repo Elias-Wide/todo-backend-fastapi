@@ -1,26 +1,14 @@
-from typing import Annotated, AsyncGenerator
+from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, Request, status
 from jwt import PyJWTError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
-from src.db.database import SessionLocal, get_session
-from src.db.db_manager import DBManager
-from src.users.models import UsersOrm
-from src.users.schemas import SUser
-from src.users.services import UsersService
-
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
-
-
-async def get_db_manager() -> AsyncGenerator[DBManager, None]:
-    async with DBManager(SessionLocal) as manager:
-        yield manager
-
-
-DBManagerDep = Annotated[DBManager, Depends(get_db_manager)]
+from src.dependecies.db_maneger import DBManagerDep
+from src.models.users import UsersOrm
+from src.schemas.users import SUser
+from src.services.users import UsersService
 
 
 async def get_current_user(

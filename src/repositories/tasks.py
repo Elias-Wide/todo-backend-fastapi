@@ -1,9 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.repository import SQLAlchemyRepository
-from src.tasks.models import TasksOrm
-from src.tasks.schemas import STask, STaskAdd
+from src.models.tasks import TasksOrm
+from src.repositories.base import SQLAlchemyRepository
+from src.schemas.tasks import STask, STaskAdd
 
 
 class TasksRepository(SQLAlchemyRepository):
