@@ -9,8 +9,9 @@ from src.core.exceptions import (
 )
 from src.db.db_manager import DBManager
 from src.models.users import UsersOrm
-from src.schemas.schemas import STokenPair
-from src.services.auth import security, tokens
+from src.schemas.tokens import STokenPair
+from src.services.auth.security import security
+from src.services.auth.tokens import tokens
 
 
 class AuthServiceJWT:

@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import date
+
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.tasks import TasksOrm
@@ -74,3 +76,37 @@ class TasksRepository(SQLAlchemyRepository):
         query = select(self.model).where(self.model.user_id == user_id)
         result = await self.session.execute(query)
         return [STask.model_validate(obj) for obj in result.scalars().all()]
+
+    async def get_tasks_by_date(
+        self, user_id: int, target_date: date
+    ) -> list[STask]:
+        """
+        Retrieves all tasks for a specific user and date.
+        """
+        query = select(self.model).where(
+            self.model.user_id == user_id,
+            func.date(self.model.created_at) == target_date,
+        )
+        result = await self.session.execute(query)
+        return [STask.model_validate(obj) for obj in result.scalars().all()]
+
+    async def get_next_task(self, user_id: int) -> STask | None:
+        """
+        Retrieves the closest upcoming task for a specific user.
+        """
+        query = (
+            select(self.model)
+            .where(
+                self.model.user_id == user_id,
+                self.model.created_at >= func.now(),
+            )
+            .order_by(self.model.created_at.asc())
+            .limit(1)
+        )
+        result = await self.session.execute(query)
+        task_obj = result.scalar_one_or_none()
+
+        if not task_obj:
+            return None
+
+        return STask.model_validate(task_obj)

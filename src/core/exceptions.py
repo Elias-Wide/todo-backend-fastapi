@@ -49,3 +49,7 @@ class RefreshTokenExpiredError(AppError):
 
 class TaskNotFoundError(AppError):
     msg = 'Task with this id not found'
+
+
+class AiResponseError(AppError):
+    msg = 'Cannot define task from response'

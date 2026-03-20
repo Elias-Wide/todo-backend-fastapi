@@ -10,6 +10,7 @@ from alembic import context
 from src.db.database import Model
 from src.models.users import RefreshTokensOrm, UsersOrm # noqa
 from src.models.tasks import TasksOrm # noqa
+from src.models.prompts import PromptsOrm # noqa
 from src.config import settings
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 # this is the Alembic Config object, which provides

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.core.constants.core import AppLang
 from src.db.database import Model
 
 if TYPE_CHECKING:
@@ -33,6 +34,7 @@ class UsersOrm(Model):
     refresh_tokens: Mapped[list['RefreshTokensOrm']] = relationship(
         back_populates='user', cascade='all, delete-orphan'
     )
+    lang: Mapped[str] = mapped_column(String(), default=AppLang.RU)
     tasks: Mapped[List['TasksOrm']] = relationship(
         back_populates='user',
         cascade='all, delete-orphan',

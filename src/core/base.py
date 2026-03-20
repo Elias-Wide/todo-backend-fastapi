@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
-from fastapi import FastAPI
 from pydantic import BaseModel
 
 from src.db.database import Model
@@ -45,50 +44,3 @@ class AbstractRepository(ABC):
     async def delete(cls, record_id: int):
         """Deletes a record by its ID."""
         raise NotImplementedError
-
-
-class BaseSecurity(ABC):
-    """Abstract base class for password hashing and verification."""
-
-    @abstractmethod
-    def hash_password(self, password: str) -> str:
-        """Generate a secure hash from a plain-text password."""
-        pass
-
-    @abstractmethod
-    def verify_password(self, password: str, password_hash: str) -> bool:
-        """Verify the password against the provided hash."""
-        pass
-
-
-class BaseService(ABC):
-    """Abstract base class for service layer."""
-
-    @abstractmethod
-    async def create(self, data):
-        """Create a new record."""
-        pass
-
-    @abstractmethod
-    async def get_all(self):
-        """Retrieve all records."""
-        pass
-
-    @abstractmethod
-    async def delete(self, record_id: int):
-        """Delete a record by its ID."""
-        pass
-
-
-class BaseApiManager(SingletonMeta):
-    """Abstract Base Class for managing FastAPI route registration."""
-
-    @abstractmethod
-    def discover_routers(self):
-        """Locate and load routers from the filesystem."""
-        pass
-
-    @abstractmethod
-    def register_routes(self, app: FastAPI):
-        """Include loaded routers into the FastAPI application."""
-        pass

@@ -22,9 +22,6 @@ class STaskAdd(BaseModel):
         ..., min_length=TASK_MIN_LENGTH, max_length=TASK_MAX_LENGTH
     )
     description: Optional[str] = Field(None, max_length=DESCRIPTION_MAX_LENGTH)
-    is_daily: bool = Field(
-        False, description='Indicates if the task should repeat daily'
-    )
     model_config = ConfigDict(from_attributes=True)
     scheduled_time: Optional[datetime] = Field(
         None,

@@ -4,8 +4,8 @@ from typing import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from src.dependecies.db_maneger import get_db_manager
-from src.dependecies.users import get_current_user
+from src.dependencies.db_manager import get_db_manager
+from src.dependencies.users import get_current_user
 
 os.environ['APP_MODE'] = 'TEST'
 

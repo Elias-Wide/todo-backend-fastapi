@@ -1,20 +1,14 @@
-from src.auth.security import security
 from src.core.exceptions import UserAlreadyExistsError
-from src.db.db_manager import DBManager
 from src.models.users import UsersOrm
 from src.schemas.users import SUserRegister
+from src.services.auth.security import security
+from src.services.base import BaseService
 
 
-class UsersService:
+class UsersService(BaseService):
     """
     Service layer for User entities and profile management.
     """
-
-    def __init__(self, db: DBManager):
-        """
-        Initialize the service with a database manager.
-        """
-        self.db: DBManager = db
 
     async def register_user(self, user_data: SUserRegister) -> int:
         """

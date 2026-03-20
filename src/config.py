@@ -64,7 +64,7 @@ class DatabaseConfig(ConfigBase):
         return v
 
 
-class AppAuthConfig(ConfigBase):
+class AppConfig(ConfigBase):
     """
     Authentication and security settings for the application.
 
@@ -94,6 +94,13 @@ class AppAuthConfig(ConfigBase):
     def refresh_secret_key(self):
         """Rotates the secret key by generating a fresh Fernet token."""
         self.secret_key = Fernet.generate_key()
+
+
+class AIConfig(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix='ai_')
+    api_key: str | None = None
+    text_model: str | None = None
+    speech_model: str | None = None
 
 
 class UserAuthConfig(ConfigBase):
@@ -162,8 +169,9 @@ class Settings(BaseSettings):
 
     app_name: str = 'Todo'
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
-    app: AppAuthConfig = Field(default_factory=AppAuthConfig)
+    app: AppConfig = Field(default_factory=AppConfig)
     auth: UserAuthConfig = Field(default_factory=UserAuthConfig)
+    ai: AIConfig = Field(default_factory=AIConfig)
 
     @classmethod
     def load(cls) -> 'Settings':

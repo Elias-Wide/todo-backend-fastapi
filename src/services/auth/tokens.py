@@ -7,7 +7,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 
 from src.config import settings
-from src.schemas.schemas import SJWTPayload
+from src.schemas.tokens import SJWTPayload
 
 
 class TokenHelper:

@@ -5,8 +5,8 @@ description = ""
 authors = [
     {name = "Ilya Shirokov", email = "ilshi2904@gmail.com"}
 ]
+requires-python = ">=3.12,<4.0.0"
 readme = "README.md"
-requires-python = ">=3.12"
 dependencies = [
     "fastapi (>=0.129.0,<0.130.0)",
     "alembic (>=1.18.4,<2.0.0)",
@@ -24,6 +24,7 @@ dependencies = [
     "aiosqlite (>=0.22.1,<0.23.0)",
     "pytest-lazy-fixtures (>=1.4.0,<2.0.0)",
     "faker (>=40.8.0,<41.0.0)",
+    "langchain-groq (>=1.1.2,<2.0.0)",
 ]
 
 [tool.poetry]

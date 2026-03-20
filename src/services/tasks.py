@@ -1,15 +1,11 @@
 from src.core.exceptions import AccessDeniedError, TaskNotFoundError
-from src.db.db_manager import DBManager
 from src.models.tasks import TasksOrm
-from src.tasks.schemas import STask
+from src.schemas.tasks import STask
+from src.services.base import BaseService
 
 
-class TasksService:
+class TasksService(BaseService):
     """Service layer for Task entities and business logic."""
-
-    def __init__(self, db: DBManager):
-        """Initialize the service with a task repository."""
-        self.db: DBManager = db
 
     async def create_task(self, user_id: int, task_data: STask) -> int:
         """
