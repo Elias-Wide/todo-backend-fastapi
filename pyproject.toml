@@ -25,6 +25,8 @@ dependencies = [
     "pytest-lazy-fixtures (>=1.4.0,<2.0.0)",
     "faker (>=40.8.0,<41.0.0)",
     "langchain-groq (>=1.1.2,<2.0.0)",
+    "sqladmin (>=0.23.0,<0.24.0)",
+    "itsdangerous (>=2.2.0,<3.0.0)",
 ]
 
 [tool.poetry]

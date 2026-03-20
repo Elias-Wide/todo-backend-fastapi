@@ -4,11 +4,13 @@ from src.core.constants.ai_services import AiAction
 from src.core.exceptions import AiResponseError
 from src.db.db_manager import DBManager
 from src.schemas.ai_requests import (
-    SAiResponse,
     SCreateTaskParams,
+    SCreateTaskResponse,
+    SErrorResponse,
+    SGetNextTaskResponse,
     SGetTasksParams,
+    SGetTasksResponse,
 )
-from src.schemas.tasks import STaskAdd
 from src.services.base import BaseService
 
 
@@ -21,12 +23,19 @@ class AiService(BaseService):
             AiAction.GET_NEXT_TASK: self.get_next_task,
         }
 
-    async def process_request(self, user_id: int, ai_obj: SAiResponse):
+    async def process_request(
+        self,
+        user_id: int,
+        ai_obj: SErrorResponse
+        | SCreateTaskResponse
+        | SGetTasksResponse
+        | SGetNextTaskResponse,
+    ):
         """Execute logic based on validated AI response object."""
-        action_data = ai_obj.root
-        message = action_data.parameters.message
+        action_data = ai_obj
+        message = action_data.message
         if action_data.action == AiAction.ERROR:
-            raise AiResponseError(action_data.parameters.message)
+            raise AiResponseError(action_data.message)
 
         method = self._action_map.get(action_data.action)
         if not method:
@@ -44,9 +53,9 @@ class AiService(BaseService):
     async def create_tasks(self, user_id: int, params: SCreateTaskParams):
         """Validate and create multiple tasks, returns list of STask."""
         created_tasks = []
+        print(params)
         for t in params.tasks:
-            task_to_add = STaskAdd(t)
-            task_obj = await self.db.tasks.create_task(user_id, task_to_add)
+            task_obj = await self.db.tasks.create_task(user_id, t)
             created_tasks.append(task_obj)
         return created_tasks
 

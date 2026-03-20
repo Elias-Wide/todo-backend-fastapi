@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from sqladmin import Admin
 
 from src.api.endpoints.v1.api_v1 import api_v1_router as main_router
-from src.services.ai.utils import create_system_prompt
+from src.core.admin.admin_view import admin_views
+from src.core.admin.auth import authentication_backend
+from src.db.database import engine
 
 
 @asynccontextmanager
@@ -14,3 +17,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(main_router, prefix='/api')
+admin = Admin(
+    app=app,
+    engine=engine,
+    authentication_backend=authentication_backend,
+)
+
+for view in admin_views:
+    admin.add_view(view)

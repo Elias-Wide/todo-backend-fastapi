@@ -13,8 +13,8 @@ from src.core.constants.core import MAIN_API_ROUTE
 from src.db.database import Model, SessionLocal, engine
 from src.db.db_manager import DBManager
 from src.main import app
-from src.tests.fixtures.tasks import *
-from src.tests.fixtures.users import *
+from src.tests.fixtures.tasks import *  # noqa: F403, F401
+from src.tests.fixtures.users import *  # noqa: F403, F401
 
 
 @pytest.fixture(scope='session', autouse=True)

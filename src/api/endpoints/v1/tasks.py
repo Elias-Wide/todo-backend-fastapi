@@ -65,8 +65,7 @@ async def send_ai_request(
 ):
     current_dt = datetime.now()
     formatted_prompt = prompt_text % (
-        current_dt.strftime('%Y-%m-%d'),
-        current_dt.strftime('%H:%M'),
+        current_dt.strftime('%Y-%m-%d %H:%M'),
         user.lang,
     )
     llm = GroqTextClient(
@@ -78,8 +77,7 @@ async def send_ai_request(
     match = re.search(r'(\{.*\})', raw_answer, re.DOTALL)
     if match:
         try:
-            return json.loads(raw_answer)
-
+            print(json.loads(raw_answer))
             ai_response = SAiResponse.model_validate_json(match.group(1)).root
             print(ai_response)
             ai_service = AiService(db)
@@ -87,5 +85,5 @@ async def send_ai_request(
         except ValidationError as e:
             return {'error': 'Invalid AI structure', 'details': e.errors()}
         except AiResponseError as e:
-            return {'error': str(e.msg), 'raw': raw_answer}
+            return {'error': str(e.msg)}
     return {'error': 'Could not parse AI response', 'raw': raw_answer}
