@@ -1,0 +1,60 @@
+from typing import List, Literal, Union
+
+from pydantic import BaseModel, Field, RootModel
+
+from backend.core.constants.ai_services import AiAction
+from backend.schemas.tasks import STaskAdd
+
+
+class SAiRequest(BaseModel):
+    """User request sent to the AI assistant."""
+
+    text: str = Field(..., description="The user's message text")
+
+
+class SCreateTaskParams(BaseModel):
+    """Parameters for the create_task action."""
+    tasks: List[STaskAdd] = Field(..., description='The task data object')
+
+
+class SGetTasksParams(BaseModel):
+    """Parameters for retrieving tasks by date."""
+
+    date: str = Field(..., description='Target date: YYYY-MM-DD')
+
+
+class SErrorResponse(BaseModel):
+    """Response returned when an error occurs."""
+
+    action: Literal[AiAction.ERROR]
+    message: str
+
+class SCreateTaskResponse(BaseModel):
+    """Response returned to trigger task creation."""
+
+    action: Literal[AiAction.CREATE_TASKS]
+    parameters: SCreateTaskParams
+    message: str
+
+class SGetTasksResponse(BaseModel):
+    """Response returned to fetch tasks for a date."""
+
+    action: Literal[AiAction.GET_TASKS_BY_DATE]
+    parameters: SGetTasksParams
+    message: str
+
+class SGetNextTaskResponse(BaseModel):
+    """Response for the 'nearest' or 'upcoming' task."""
+
+    action: Literal[AiAction.GET_NEXT_TASK]
+    message: str
+
+class SAiResponse(RootModel):
+    """Unified AI response model with discriminator 'action'."""
+
+    root: Union[
+        SErrorResponse,
+        SCreateTaskResponse,
+        SGetTasksResponse,
+        SGetNextTaskResponse,
+    ] = Field(..., discriminator='action')
