@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from backend.models.prompts import PromptsOrm
+from models.prompts import PromptsOrm
 
 
 class PromptsAdmin(ModelView, model=PromptsOrm):

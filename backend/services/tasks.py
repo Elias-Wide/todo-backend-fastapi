@@ -1,11 +1,9 @@
 from datetime import datetime
 
-from pydantic import ValidationError
-
-from backend.core.exceptions import AccessDeniedError, TaskNotFoundError
-from backend.models.tasks import TasksOrm
-from backend.schemas.tasks import STask, STaskAdd
-from backend.services.base import BaseService
+from core.exceptions import AccessDeniedError, TaskNotFoundError
+from models.tasks import TasksOrm
+from schemas.tasks import STask, STaskAdd
+from services.base import BaseService
 
 
 class TasksService(BaseService):
@@ -18,6 +16,7 @@ class TasksService(BaseService):
         )
         await self.db.session.commit()
         return task
+
     async def get_task(self, user_id: int, task_id: int) -> TasksOrm:
         """Retrieve a single task by its ID or raise TaskNotFoundError."""
         try:
@@ -53,14 +52,14 @@ class TasksService(BaseService):
     ) -> list[TasksOrm]:
         """Validate and bulk create tasks within a single transaction."""
         if not tasks_data:
-            raise ValueError("Task list cannot be empty")
+            raise ValueError('Task list cannot be empty')
         try:
             tasks = await self.db.tasks.bulk_create_tasks(user_id, tasks_data)
             await self.db.commit()
             return tasks
         except Exception as e:
             await self.db.rollback()
-            raise
+            raise e
 
     async def get_tasks_by_date(
         self, user_id: int, target_date: datetime

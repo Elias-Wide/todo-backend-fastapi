@@ -1,8 +1,8 @@
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.prompts import PromptsOrm
-from backend.repositories.base import SQLAlchemyRepository
+from models.prompts import PromptsOrm
+from repositories.base import SQLAlchemyRepository
 
 
 class PromptsRepository(SQLAlchemyRepository):

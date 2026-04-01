@@ -1,17 +1,17 @@
 from datetime import datetime, timedelta, timezone
 
-from backend.config import settings
-from backend.core.exceptions import (
+from config import settings
+from core.exceptions import (
     InvalidCredentialsError,
     RefreshTokenExpiredError,
     RefreshTokenNotFoundError,
     UserNotFoundError,
 )
-from backend.db.db_manager import DBManager
-from backend.models.users import UsersOrm
-from backend.schemas.tokens import STokenPair
-from backend.services.auth.security import security
-from backend.services.auth.tokens import tokens
+from db.db_manager import DBManager
+from models.users import UsersOrm
+from schemas.tokens import STokenPair
+from services.auth.security import security
+from services.auth.tokens import tokens
 
 
 class AuthServiceJWT:

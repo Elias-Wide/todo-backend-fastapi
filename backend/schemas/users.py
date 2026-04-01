@@ -7,8 +7,8 @@ from pydantic import (
     field_validator,
 )
 
-from backend.core.constants.core import AppLang
-from backend.core.constants.users import (
+from core.constants.core import AppLang
+from core.constants.users import (
     PASSWORD_HASH_LENGTH,
     PASSWORD_MAX_LENGTH,
     PASSWORD_MIN_LENGTH,

@@ -6,17 +6,17 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import ValidationError
 
-from backend.config import settings
-from backend.core.exceptions import AiResponseError, TaskNotFoundError
-from backend.dependencies.db_manager import DBManagerDep
-from backend.dependencies.users import get_current_user
-from backend.models.users import UsersOrm
-from backend.schemas.ai_requests import SAiRequest, SAiResponse
-from backend.schemas.tasks import STask, STaskAdd
-from backend.services.ai.ai_service import AiService
-from backend.services.ai.clients import GroqTextClient
-from backend.services.ai.utils import prompt_text
-from backend.services.tasks import TasksService
+from config import settings
+from core.exceptions import AiResponseError, TaskNotFoundError
+from dependencies.db_manager import DBManagerDep
+from dependencies.users import get_current_user
+from models.users import UsersOrm
+from schemas.ai_requests import SAiRequest, SAiResponse
+from schemas.tasks import STask, STaskAdd
+from services.ai.ai_service import AiService
+from services.ai.clients import GroqTextClient
+from services.ai.utils import prompt_text
+from services.tasks import TasksService
 
 router = APIRouter(prefix='/tasks', tags=['Tasks'])
 

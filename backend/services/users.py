@@ -1,8 +1,8 @@
-from backend.core.exceptions import UserAlreadyExistsError
-from backend.models.users import UsersOrm
-from backend.schemas.users import SUserRegister
-from backend.services.auth.security import security
-from backend.services.base import BaseService
+from core.exceptions import UserAlreadyExistsError
+from models.users import UsersOrm
+from schemas.users import SUserRegister
+from services.auth.security import security
+from services.base import BaseService
 
 
 class UsersService(BaseService):

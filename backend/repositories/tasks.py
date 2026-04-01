@@ -3,9 +3,9 @@ from datetime import date
 from sqlalchemy import func, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models.tasks import TasksOrm
-from backend.repositories.base import SQLAlchemyRepository
-from backend.schemas.tasks import STask, STaskAdd
+from models.tasks import TasksOrm
+from repositories.base import SQLAlchemyRepository
+from schemas.tasks import STask, STaskAdd
 
 
 class TasksRepository(SQLAlchemyRepository):
@@ -118,8 +118,7 @@ class TasksRepository(SQLAlchemyRepository):
         if not tasks_data:
             return []
         values = [
-            {**task.model_dump(), "user_id": user_id} 
-            for task in tasks_data
+            {**task.model_dump(), 'user_id': user_id} for task in tasks_data
         ]
         stmt = insert(self.model).values(values).returning(self.model)
         result = await self.session.execute(stmt)

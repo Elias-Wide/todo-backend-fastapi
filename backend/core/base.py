@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 
 from pydantic import BaseModel
 
-from backend.db.database import Model
+from db.database import Model
 
 
 class SingletonMeta:

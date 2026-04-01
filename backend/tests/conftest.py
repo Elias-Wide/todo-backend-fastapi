@@ -4,17 +4,17 @@ from typing import AsyncGenerator
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from backend.dependencies.db_manager import get_db_manager
-from backend.dependencies.users import get_current_user
+from dependencies.db_manager import get_db_manager
+from dependencies.users import get_current_user
 
 os.environ['APP_MODE'] = 'TEST'
 
-from backend.core.constants.core import MAIN_API_ROUTE
-from backend.db.database import Model, SessionLocal, engine
-from backend.db.db_manager import DBManager
-from backend.main import app
-from backend.tests.fixtures.tasks import *  # noqa: F403, F401
-from backend.tests.fixtures.users import *  # noqa: F403, F401
+from core.constants.core import MAIN_API_ROUTE
+from db.database import Model, SessionLocal, engine
+from db.db_manager import DBManager
+from main import app
+from tests.fixtures.tasks import *  # noqa: F403, F401
+from tests.fixtures.users import *  # noqa: F403, F401
 
 
 @pytest.fixture(scope='session', autouse=True)

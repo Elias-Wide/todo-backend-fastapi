@@ -1,8 +1,8 @@
 import pytest
 
-from backend.db.db_manager import DBManager
-from backend.schemas.users import SUserRegister
-from backend.services.users import UsersService
+from db.db_manager import DBManager
+from schemas.users import SUserRegister
+from services.users import UsersService
 
 
 @pytest.fixture

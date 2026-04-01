@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from backend.core.constants.ai_services import AiAction
-from backend.core.exceptions import AiResponseError
-from backend.db.db_manager import DBManager
-from backend.schemas.ai_requests import (
+from core.constants.ai_services import AiAction
+from core.exceptions import AiResponseError
+from db.db_manager import DBManager
+from schemas.ai_requests import (
     SCreateTaskParams,
     SCreateTaskResponse,
     SErrorResponse,
@@ -11,23 +11,24 @@ from backend.schemas.ai_requests import (
     SGetTasksParams,
     SGetTasksResponse,
 )
-from backend.services.base import BaseService
-from backend.services.tasks import TasksService
+from services.base import BaseService
+from services.tasks import TasksService
 
 
 class AiService(BaseService):
     """
     Service for orchestrating backend actions based on AI-generated responses.
 
-    This service acts as a bridge between the AI's structured output and the 
-    application logic. It parses the validated AI response, maps the 
-    identified 'action' to a specific backend method (e.g., task creation, 
+    This service acts as a bridge between the AI's structured output and the
+    application logic. It parses the validated AI response, maps the
+    identified 'action' to a specific backend method (e.g., task creation,
     retrieval), and handles error states or unclear user intents.
 
     Attributes:
-        db (DBManager): The database manager for executing task-related queries.
-        _action_map (dict): Internal mapping of AiAction enums to service methods.
+        db (DBManager): The db manager for executing task-related queries.
+        _action_map (dict): mapping of AiAction enums to service methods.
     """
+
     def __init__(self, db: DBManager):
         self.tasks_service = TasksService(db)
         self._action_map = {

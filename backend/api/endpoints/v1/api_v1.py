@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from backend.api.endpoints.v1.tasks import router as tasks_router
-from backend.api.endpoints.v1.users import router as users_router
+from api.endpoints.v1.tasks import router as tasks_router
+from api.endpoints.v1.users import router as users_router
 
 api_v1_router = APIRouter(prefix='/v1')
 

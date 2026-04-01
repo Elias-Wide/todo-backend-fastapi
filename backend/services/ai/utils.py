@@ -1,9 +1,9 @@
-from backend.config import APP_DIR
-from backend.core.constants.ai_services import GROQ_TEXT_PROMPT_KEY
-from backend.db.database import get_session
-from backend.repositories.prompts import PromptsRepository
+from config import BASE_DIR
+from core.constants.ai_services import GROQ_TEXT_PROMPT_KEY
+from db.database import get_session
+from repositories.prompts import PromptsRepository
 
-PROMPT_PATH = APP_DIR / 'static' / 'prompts' / 'system_prompt.md'
+PROMPT_PATH = BASE_DIR / 'static' / 'prompts' / 'system_prompt.md'
 
 
 def get_system_prompt():

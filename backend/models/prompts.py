@@ -10,7 +10,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 
-from backend.db.database import Model
+from db.database import Model
 
 
 class PromptsOrm(Model):

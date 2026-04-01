@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, List
 from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.core.constants.core import AppLang
-from backend.db.database import Model
+from core.constants.core import AppLang
+from db.database import Model
 
 if TYPE_CHECKING:
-    from backend.models.tasks import TasksOrm
-from backend.core.constants.users import TOKEN_HASH_LENGTH
+    from models.tasks import TasksOrm
+from core.constants.users import TOKEN_HASH_LENGTH
 
 
 class UsersOrm(Model):

@@ -1,11 +1,11 @@
-from datetime import datetime, time, date
+from datetime import datetime, time
 from typing import Optional
 
-from sqlalchemy import ForeignKey, DateTime, func
+from sqlalchemy import DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from backend.db.database import Model
-from backend.models.users import UsersOrm
+from db.database import Model
+from models.users import UsersOrm
 
 
 def default_task_time():

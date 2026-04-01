@@ -9,8 +9,8 @@ from fastapi import (
     status,
 )
 
-from backend.config import settings
-from backend.core.exceptions import (
+from config import settings
+from core.exceptions import (
     AppError,
     InvalidCredentialsError,
     RefreshTokenExpiredError,
@@ -18,14 +18,14 @@ from backend.core.exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from backend.dependencies.db_manager import DBManagerDep
-from backend.dependencies.users import get_current_user
-from backend.models.users import UsersOrm
-from backend.schemas.tokens import SLoginRequest, SRefreshRequest, STokenPair
-from backend.schemas.users import SUser, SUserRegister
-from backend.services.auth.auth import AuthServiceJWT
-from backend.services.auth.tokens import BaseCookie, get_cookie_config
-from backend.services.users import UsersService
+from dependencies.db_manager import DBManagerDep
+from dependencies.users import get_current_user
+from models.users import UsersOrm
+from schemas.tokens import SLoginRequest, SRefreshRequest, STokenPair
+from schemas.users import SUser, SUserRegister
+from services.auth.auth import AuthServiceJWT
+from services.auth.tokens import BaseCookie, get_cookie_config
+from services.users import UsersService
 
 router = APIRouter(prefix='/users', tags=['users'])
 
