@@ -1,0 +1,41 @@
+import pytest
+
+from backend.db.db_manager import DBManager
+from backend.schemas.users import SUserRegister
+from backend.services.users import UsersService
+
+
+@pytest.fixture
+def user_register_route(main_api_route) -> str:
+    return main_api_route + '/users/register'
+
+
+@pytest.fixture
+def user_login_route(main_api_route) -> str:
+    return main_api_route + '/users/login'
+
+
+@pytest.fixture
+def valid_user_data():
+    return {'username': 'valid_user', 'password': 'secret_password_123'}
+
+
+@pytest.fixture
+def invalid_user_data_short():
+    return {'username': 'u', 'password': '1'}
+
+
+@pytest.fixture
+def user_data_missing_fields():
+    return {'username': 'only_name'}
+
+
+@pytest.fixture(scope='function')
+async def registered_user(db_session: DBManager, valid_user_data: dict):
+    service = UsersService(db_session)
+    user = await service.get_user_profile(valid_user_data['username'])
+    return (
+        user
+        if user
+        else await service.register_user(SUserRegister(**valid_user_data))
+    )
