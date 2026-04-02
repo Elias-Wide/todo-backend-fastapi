@@ -9,4 +9,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY . .
 
 # Правильный формат (JSON array)
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

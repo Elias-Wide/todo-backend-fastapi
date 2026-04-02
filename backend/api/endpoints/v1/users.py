@@ -69,9 +69,11 @@ async def register_user(
 ) -> SUser:
     """Register a new user and return the user data."""
     service = UsersService(db)
+    print(user_data)
     try:
         return await service.register_user(user_data)
     except UserAlreadyExistsError as err:
+        print('FAILD')
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST, detail=str(err)
         ) from err

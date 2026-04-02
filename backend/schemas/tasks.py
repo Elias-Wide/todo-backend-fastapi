@@ -23,7 +23,7 @@ class STaskAdd(BaseModel):
             hour=DEFAULT_TASK_TIME, minute=0, second=0, microsecond=0
         ),
         description=(
-            'Task date and time. If time is missing, defaults to 10:00.',
+            'Task date and time. If time is missing, defaults to 10:00.'
         )
     )
 
