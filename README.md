@@ -4,6 +4,8 @@
 
 A modern task management (TODO) application featuring AI-powered command processing, a Telegram bot interface, and a microservices architecture.
 
+
+
 ## 🧱 System Interaction Scheme
 
 ```mermaid
@@ -55,7 +57,6 @@ sequenceDiagram
 2. **Scenario 2 (Special AI Requests):** When a user submits a voice note or a complex natural language command, the payload hits a specialized FastAPI endpoint. The backend acts as an orchestrator: it forwards the raw data to the AI Service, which pulls the necessary task context from the database, runs the data through the LLM/Audio model, and yields a validated structured JSON object. FastAPI then updates the primary database state and syncs the finalized results back to the user.
 
 
----
 
 ## 🛠 Component Breakdown
 
