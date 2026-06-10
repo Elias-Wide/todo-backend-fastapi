@@ -4,8 +4,6 @@
 
 A modern task management (TODO) application featuring AI-powered command processing, a Telegram bot interface, and a microservices architecture.
 
-
-
 ## 🧱 Application Workflow Block Diagram
 
 ```mermaid
@@ -15,7 +13,7 @@ graph TD
     Front -->|Send Request| Back[Main Backend: FastAPI]
     
     %% Condition Split
-    Back --> IsAISpecial{Is it a special AI request?<br><i>(Text Prompt or Voice Note)</i>}
+    Back --> IsAISpecial{"Is it a special AI request? (Text/Voice)"}
     
     %% Path A: Clean Request
     IsAISpecial -->|No: Clean Request| DBUpdate[Query / Update Database Directly]
@@ -53,6 +51,7 @@ graph TD
    * **Clean Requests:** Standard actions (like manually completing a task) skip the AI infrastructure entirely and modify the database directly.
    * **AI-Assisted Requests:** Voice messages or natural language prompts are routed to the isolated AI Service. The service enriches the prompt with context from the database, runs the execution through the model, and returns a strict, structured JSON schema back to the main backend.
 3. **State Consolidation:** FastAPI finalizes the database state for both paths and ensures that all user interfaces receive synced updates.
+
 
 
 
