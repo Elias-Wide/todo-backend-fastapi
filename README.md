@@ -53,7 +53,6 @@ graph TD
 ### 4. AI Service (`AI Service`)
 *   **Technology Stack:** Python, LLM APIs (or local models).
 *   **Role:** A dedicated microservice isolated from the main business logic. It handles heavy or complex intelligent tasks:
-    *   **Direct Database Access:** Queries the database independently to gather relevant task context or user logs needed for the prompt.
     *   **Prompt Processing:** Interprets natural language inputs (text) or audio messages (voice).
     *   **Structured Output:** Guarantees strict validation and formats the final AI response into a clean JSON object before returning it to the main backend.
 
