@@ -17,11 +17,11 @@ graph TD
     
     Back -->|5. Send Response| Front
 
-    %% Styling
-    style Front fill:#f9f,stroke:#333,stroke-width:1px
-    style Back fill:#dfd,stroke:#333,stroke-width:2px
-    style AI fill:#fdd,stroke:#333,stroke-width:1px
-    style DB fill:#fff,stroke:#333,stroke-width:1px
+    %% Styling for Black and Bold Text
+    style Front fill:#f9f,stroke:#333,stroke-width:2px,color:#000,font-weight:bold
+    style Back fill:#dfd,stroke:#333,stroke-width:2px,color:#000,font-weight:bold
+    style AI fill:#fdd,stroke:#333,stroke-width:2px,color:#000,font-weight:bold
+    style DB fill:#fff,stroke:#333,stroke-width:2px,color:#000,font-weight:bold
 ```
 
 ### Flowchart Breakdown
