@@ -6,56 +6,53 @@ A modern task management (TODO) application featuring AI-powered command process
 
 
 
-## 🧱 System Interaction Scheme
+## 🧱 Application Workflow Block Diagram
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    actor User as User (Web / TG Bot)
-    participant Front as Frontend (Reflex / Bot)
-    participant Back as Main Backend (FastAPI)
-    participant DB as Database
-    participant AI as AI Service
-    participant LLM as LLM / Audio Model
+graph TD
+    %% Nodes definition
+    User([User Action]) --> Front[Frontend: Reflex / TG Bot]
+    Front -->|Send Request| Back[Main Backend: FastAPI]
+    
+    %% Condition Split
+    Back --> IsAISpecial{Is it a special AI request?<br><i>(Text Prompt or Voice Note)</i>}
+    
+    %% Path A: Clean Request
+    IsAISpecial -->|No: Clean Request| DBUpdate[Query / Update Database Directly]
+    DBUpdate --> DB[(Database: PostgreSQL / SQLite)]
+    
+    %% Path B: AI Request
+    IsAISpecial -->|Yes: AI Request| AIService[Forward to AI Service]
+    AIService --> AIDB[Fetch Relevant Task Context]
+    AIDB --> DB
+    DB -->|Return Context| AIService
+    
+    AIService --> LLM[[Process via LLM / Audio Model]]
+    LLM -->|Return Result| AIService
+    AIService -->|Return Validated Structured JSON| Back
+    Back --> AISave[Save AI-Generated Tasks/Changes]
+    AISave --> DB
+    
+    %% Sync & Output
+    DBUpdate --> Response[Format Final JSON Response]
+    AISave --> Response
+    Response -->|Send Update| Front
+    Front --> UI([Update UI / Send Chat Message to User])
 
-    %% --- SCENARIO 1: CLEAN REQUESTS ---
-    rect rgb(240, 248, 255)
-        note right of User: Scenario 1: Standard (Clean) Request
-        User->>Front: Action (e.g., Click "View Tasks", Check Checkbox)
-        Front->>Back: API Call (GET /tasks, PATCH /tasks/id)
-        Back->>DB: Query / Update Data
-        DB-->>Back: Return Rows
-        Back-->>Front: Render JSON Data
-        Front-->>User: Update UI / Send Message
-    end
-
-    %% --- SCENARIO 2: SPECIAL AI REQUESTS ---
-    rect rgb(255, 240, 245)
-        note right of User: Scenario 2: Special AI Request (Text or Voice)
-        User->>Front: Prompt Input (e.g., Send Voice Note / Command text)
-        Front->>Back: POST /api/v1/ai/process (Text or Audio File)
-        
-        note over Back,AI: Backend acts as an Orchestrator
-        Back->>AI: Forward Payload (POST /process-prompt)
-        
-        AI->>DB: Fetch Task Context / User History
-        DB-->>AI: Return Context
-        
-        AI->>LLM: Send Payload for Processing
-        LLM-->>AI: Return Processed Text / Result
-        
-        AI-->>Back: Return Validated Structured JSON
-        
-        Back->>DB: Save/Update Tasks based on AI response
-        Back-->>Front: Return Final Response / Status
-        Front-->>User: Show Structured Result (e.g., New Task Created)
-    end
+    %% Styling
+    style IsAISpecial fill:#fffbf0,stroke:#d4af37,stroke-width:2px
+    style AIService fill:#fff0f0,stroke:#ff9999,stroke-width:2px
+    style LLM fill:#f0f5ff,stroke:#99bbff,stroke-width:2px
+    style DB fill:#f0fff0,stroke:#99e699,stroke-width:2px
 ```
 
-### Flow Breakdown
+### Flowchart Breakdown
 
-1. **Scenario 1 (Clean Requests):** When the user performs standard actions (e.g., viewing the task list, deleting a task, ticking a checkbox), the frontend clients (Reflex or Telegram Bot) communicate directly with the FastAPI backend. The AI Service remains idle, saving server resources and token costs.
-2. **Scenario 2 (Special AI Requests):** When a user submits a voice note or a complex natural language command, the payload hits a specialized FastAPI endpoint. The backend acts as an orchestrator: it forwards the raw data to the AI Service, which pulls the necessary task context from the database, runs the data through the LLM/Audio model, and yields a validated structured JSON object. FastAPI then updates the primary database state and syncs the finalized results back to the user.
+1. **Unified Entry Point:** Every user action from either the Reflex Web app or the Telegram Bot hits the FastAPI backend first.
+2. **Conditional Routing:** 
+   * **Clean Requests:** Standard actions (like manually completing a task) skip the AI infrastructure entirely and modify the database directly.
+   * **AI-Assisted Requests:** Voice messages or natural language prompts are routed to the isolated AI Service. The service enriches the prompt with context from the database, runs the execution through the model, and returns a strict, structured JSON schema back to the main backend.
+3. **State Consolidation:** FastAPI finalizes the database state for both paths and ensures that all user interfaces receive synced updates.
 
 
 
