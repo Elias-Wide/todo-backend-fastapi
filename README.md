@@ -4,42 +4,56 @@
 
 A modern task management (TODO) application featuring AI-powered command processing, a Telegram bot interface, and a microservices architecture.
 
-## 🧱 Architecture Diagram
+## 🧱 System Interaction Scheme
 
 ```mermaid
-graph TD
-    %% Frontend Components
-    Reflex[Web Frontend: Reflex] 
-    TGBot[Mobile Frontend: Telegram Bot]
+sequenceDiagram
+    autonumber
+    actor User as User (Web / TG Bot)
+    participant Front as Frontend (Reflex / Bot)
+    participant Back as Main Backend (FastAPI)
+    participant DB as Database
+    participant AI as AI Service
+    participant LLM as LLM / Audio Model
 
-    %% Core Backend
-    FastAPI[Main Backend: FastAPI]
-    DB[(Database: PostgreSQL/SQLite)]
+    %% --- SCENARIO 1: CLEAN REQUESTS ---
+    rect rgb(240, 248, 255)
+        note right of User: Scenario 1: Standard (Clean) Request
+        User->>Front: Action (e.g., Click "View Tasks", Check Checkbox)
+        Front->>Back: API Call (GET /tasks, PATCH /tasks/id)
+        Back->>DB: Query / Update Data
+        DB-->>Back: Return Rows
+        Back-->>Front: Render JSON Data
+        Front-->>User: Update UI / Send Message
+    end
 
-    %% Dedicated AI Service
-    AIService[AI Service]
-    LLM[[LLM / Audio Model]]
-
-    %% Interactions
-    Reflex -->|1. User Request| FastAPI
-    TGBot -->|1. User Request| FastAPI
-    
-    FastAPI -->|2. Forward Request| AIService
-    
-    AIService -->|3. Fetch Task Context| DB
-    AIService <-->|4. Process Prompt / Voice| LLM
-    AIService -->|5. Return Structured JSON| FastAPI
-    
-    FastAPI -->|6. Save Data| DB
-    FastAPI -->|7. Update UI| Reflex
-    FastAPI -->|7. Update Chat| TGBot
-
-    style Reflex fill:#f9f,stroke:#333,stroke-width:2px
-    style TGBot fill:#bbf,stroke:#333,stroke-width:2px
-    style FastAPI fill:#dfd,stroke:#333,stroke-width:2px
-    style AIService fill:#fdd,stroke:#333,stroke-width:2px
-    style DB fill:#fff,stroke:#333,stroke-width:2px
+    %% --- SCENARIO 2: SPECIAL AI REQUESTS ---
+    rect rgb(255, 240, 245)
+        note right of User: Scenario 2: Special AI Request (Text or Voice)
+        User->>Front: Prompt Input (e.g., Send Voice Note / Command text)
+        Front->>Back: POST /api/v1/ai/process (Text or Audio File)
+        
+        note over Back,AI: Backend acts as an Orchestrator
+        Back->>AI: Forward Payload (POST /process-prompt)
+        
+        AI->>DB: Fetch Task Context / User History
+        DB-->>AI: Return Context
+        
+        AI<->>LLM: Process Prompt (or Speech-to-Text)
+        
+        AI-->>Back: Return Validated Structured JSON
+        
+        Back->>DB: Save/Update Tasks based on AI response
+        Back-->>Front: Return Final Response / Status
+        Front-->>User: Show Structured Result (e.g., New Task Created)
+    end
 ```
+
+### Flow Breakdown
+
+1. **Scenario 1 (Clean Requests):** When the user performs standard actions (e.g., viewing the task list, deleting a task, ticking a checkbox), the frontend clients (Reflex or Telegram Bot) communicate directly with the FastAPI backend. The AI Service remains idle, saving server resources and token costs.
+2. **Scenario 2 (Special AI Requests):** When a user submits a voice note or a complex natural language command, the payload hits a specialized FastAPI endpoint. The backend acts as an orchestrator: it forwards the raw data to the AI Service, which pulls the necessary task context from the database, runs the data through the LLM/Audio model, and yields a validated structured JSON object. FastAPI then updates the primary database state and syncs the finalized results back to the user.
+
 
 ---
 
