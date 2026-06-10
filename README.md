@@ -8,40 +8,20 @@ A modern task management (TODO) application featuring AI-powered command process
 
 ```mermaid
 graph TD
-    %% Nodes definition
-    User([User Action]) --> Front[Frontend: Reflex / TG Bot]
-    Front -->|Send Request| Back[Main Backend: FastAPI]
+    Front[Frontend: Reflex / TG Bot] -->|1. Send Request| Back[Main Backend: FastAPI]
+    Back -->|2. CRUD Actions| DB[(Database: PostgreSQL / SQLite)]
     
-    %% Condition Split
-    Back --> IsAISpecial{"Is it a special AI request? (Text/Voice)"}
+    %% Optional AI Flow
+    Back -.->|3. Optional: Request AI Process| AI[AI Service & LLM]
+    AI -.->|4. Return Structured JSON| Back
     
-    %% Path A: Clean Request
-    IsAISpecial -->|No: Clean Request| DBUpdate[Query / Update Database Directly]
-    DBUpdate --> DB[(Database: PostgreSQL / SQLite)]
-    
-    %% Path B: AI Request
-    IsAISpecial -->|Yes: AI Request| AIService[Forward to AI Service]
-    AIService --> AIDB[Fetch Relevant Task Context]
-    AIDB --> DB
-    DB -->|Return Context| AIService
-    
-    AIService --> LLM[[Process via LLM / Audio Model]]
-    LLM -->|Return Result| AIService
-    AIService -->|Return Validated Structured JSON| Back
-    Back --> AISave[Save AI-Generated Tasks/Changes]
-    AISave --> DB
-    
-    %% Sync & Output
-    DBUpdate --> Response[Format Final JSON Response]
-    AISave --> Response
-    Response -->|Send Update| Front
-    Front --> UI([Update UI / Send Chat Message to User])
+    Back -->|5. Send Response| Front
 
     %% Styling
-    style IsAISpecial fill:#fffbf0,stroke:#d4af37,stroke-width:2px
-    style AIService fill:#fff0f0,stroke:#ff9999,stroke-width:2px
-    style LLM fill:#f0f5ff,stroke:#99bbff,stroke-width:2px
-    style DB fill:#f0fff0,stroke:#99e699,stroke-width:2px
+    style Front fill:#f9f,stroke:#333,stroke-width:1px
+    style Back fill:#dfd,stroke:#333,stroke-width:2px
+    style AI fill:#fdd,stroke:#333,stroke-width:1px
+    style DB fill:#fff,stroke:#333,stroke-width:1px
 ```
 
 ### Flowchart Breakdown
